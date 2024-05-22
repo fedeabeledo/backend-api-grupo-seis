@@ -13,8 +13,8 @@ public class ProductDTO {
     private String description;
     private String image_url;
     private String brand;
-    private String pet_category;
-    private String pet_stage;
+    private String petCategory;
+    private String petStage;
     private Double score;
     private Short score_voters;
     private Double price;
