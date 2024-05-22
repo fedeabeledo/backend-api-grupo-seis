@@ -25,9 +25,9 @@ public class ProductService implements IProductService {
     private ObjectMapper mapper;
 
     @Override
-    public PageDTO<ProductDTO> findAll(String category, String brand, Short page) {
+    public PageDTO<ProductDTO> findAll(String category, String brand, Double min, Double max, Short page) {
         Pageable pageable = PageRequest.of(page, 12);
-        Specification<Product> spec = buildSpec(category, brand);
+        Specification<Product> spec = buildSpec(category, brand, min, max);
 
         Page<Product> res = repository.findAll(spec, pageable);
 
@@ -43,7 +43,7 @@ public class ProductService implements IProductService {
         );
     }
 
-    private Specification<Product> buildSpec(String category, String brand) {
+    private Specification<Product> buildSpec(String category, String brand, Double min, Double max) {
         Specification<Product> spec = Specification.where(null);
 
         if (category != null) {
@@ -52,6 +52,10 @@ public class ProductService implements IProductService {
 
         if (brand != null) {
             spec= spec.and(ProductSpecification.brandSpec(brand));
+        }
+
+        if (min != null || max != null) {
+            spec= spec.and(ProductSpecification.priceSpec(min, max));
         }
 
         return spec;

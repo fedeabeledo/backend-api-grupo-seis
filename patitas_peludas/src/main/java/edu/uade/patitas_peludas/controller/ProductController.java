@@ -18,7 +18,9 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageDTO<ProductDTO>> findAll(@RequestParam(required = false) String category,
                                                        @RequestParam(required = false) String brand,
+                                                       @RequestParam(required = false) Double min,
+                                                       @RequestParam(required = false) Double max,
                                                        @RequestParam(required = true) Short page) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(category, brand, page));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(category, brand, min, max, page));
     }
 }
