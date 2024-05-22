@@ -16,7 +16,7 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PageDTO<ProductDTO>> findAll(@RequestParam Short page) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(page));
+    public ResponseEntity<PageDTO<ProductDTO>> findAll(@RequestParam String category, @RequestParam Short page) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(category, page));
     }
 }

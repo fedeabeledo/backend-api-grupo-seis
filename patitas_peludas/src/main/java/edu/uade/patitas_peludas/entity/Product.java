@@ -31,11 +31,11 @@ public class Product {
 
     @JsonProperty("pet_category")
     @Column(name = "pet_category")
-    private PetCategory pet_category;
+    private PetCategory petCategory;
 
     @JsonProperty("pet_stage")
     @Column(name = "pet_stage")
-    private PetStage pet_stage;
+    private PetStage petStage;
 
     @Column
     private Double score;
