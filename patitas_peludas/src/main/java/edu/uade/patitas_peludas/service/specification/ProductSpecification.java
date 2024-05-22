@@ -12,4 +12,8 @@ public class ProductSpecification {
             return criteriaBuilder.equal(root.get("petCategory"), petCategory);
         };
     }
+
+    public static Specification<Product> brandSpec(String brand) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("brand"), brand);
+    }
 }

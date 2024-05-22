@@ -4,5 +4,5 @@ import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.ProductDTO;
 
 public interface IProductService {
-    PageDTO<ProductDTO> findAll(String category, Short page);
+    PageDTO<ProductDTO> findAll(String category, String brand, Short page);
 }
