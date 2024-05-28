@@ -9,7 +9,7 @@ spring:
   datasource:
     password: root
     username: root
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:patitaspeludas-db}?autoReconnect=true&useSSL=false
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:patitaspeludas}?autoReconnect=true&useSSL=false
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 server:

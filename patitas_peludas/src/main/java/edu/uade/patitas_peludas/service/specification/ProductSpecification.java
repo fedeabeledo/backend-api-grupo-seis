@@ -5,8 +5,6 @@ import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProductSpecification {
-    private enum Category { CAT, DOG, FISH, HAMSTER }
-
     public static Specification<Product> categorySpec(String category) {
         return (root, query, criteriaBuilder) -> {
             Category petCategory = Category.valueOf(category.toUpperCase());
@@ -33,4 +31,6 @@ public class ProductSpecification {
             return null;
         };
     }
+
+    private enum Category {CAT, DOG, FISH, HAMSTER}
 }

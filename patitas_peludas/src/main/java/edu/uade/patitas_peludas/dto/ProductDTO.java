@@ -1,7 +1,13 @@
 package edu.uade.patitas_peludas.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
@@ -22,8 +28,12 @@ public class ProductDTO {
     private Double score;
     @JsonProperty("score_voters")
     private Short scoreVoters;
+    @Min(0)
     private Double price;
+    @Min(0)
+    @Max(100)
     private Short discount;
+    @Min(0)
     private Short stock;
     private Boolean bestseller;
 }
