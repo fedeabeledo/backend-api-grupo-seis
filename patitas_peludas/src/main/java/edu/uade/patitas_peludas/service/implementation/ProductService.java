@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.ProductDTO;
 import edu.uade.patitas_peludas.entity.Product;
+import edu.uade.patitas_peludas.exception.ProductNotFoundException;
 import edu.uade.patitas_peludas.repository.ProductRepository;
 import edu.uade.patitas_peludas.service.IProductService;
 import edu.uade.patitas_peludas.service.specification.ProductSpecification;
@@ -26,6 +27,8 @@ public class ProductService implements IProductService {
     @Autowired
     private ObjectMapper mapper;
 
+    String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
+
     @Override
     public PageDTO<ProductDTO> findAll(String category, String brand, Double min, Double max, String sort, Short page) {
         Pageable pageable = buildPageable(sort, page);
@@ -43,6 +46,37 @@ public class ProductService implements IProductService {
                 res.getNumber(),
                 res.getSize()
         );
+    }
+
+    @Override
+    public ProductDTO save(ProductDTO product) {
+        Product entity = mapper.convertValue(product, Product.class);
+        Product saved = repository.save(entity);
+
+        return mapper.convertValue(saved, ProductDTO.class);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        try {
+            Product product = repository.findById(id).orElseThrow();
+            repository.deleteById(id);
+        } catch (Exception e) {
+            throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
+        }
+
+    }
+
+    @Override
+    public ProductDTO update(Long id, ProductDTO product) {
+        if (repository.existsById(id)) {
+            Product mappedProduct = mapper.convertValue(product, Product.class);
+            mappedProduct.setId(id);
+            Product updated = repository.save(mappedProduct);
+            return mapper.convertValue(updated, ProductDTO.class);
+        } else {
+            throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
+        }
     }
 
     private Pageable buildPageable(String sort, Short page) {
@@ -64,17 +98,19 @@ public class ProductService implements IProductService {
         Specification<Product> spec = Specification.where(null);
 
         if (category != null) {
-            spec= spec.and(ProductSpecification.categorySpec(category));
+            spec = spec.and(ProductSpecification.categorySpec(category));
         }
 
         if (brand != null) {
-            spec= spec.and(ProductSpecification.brandSpec(brand));
+            spec = spec.and(ProductSpecification.brandSpec(brand));
         }
 
         if (min != null || max != null) {
-            spec= spec.and(ProductSpecification.priceSpec(min, max));
+            spec = spec.and(ProductSpecification.priceSpec(min, max));
         }
 
         return spec;
     }
+
+
 }
