@@ -62,6 +62,9 @@ public class Product {
     @Column
     private Short stock;
 
+    @Column
+    private Boolean bestseller;
+
     @Getter
     private enum PetCategory {CAT, DOG, FISH, HAMSTER}
 
