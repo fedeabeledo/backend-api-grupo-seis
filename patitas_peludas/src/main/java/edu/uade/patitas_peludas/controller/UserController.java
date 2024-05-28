@@ -3,7 +3,6 @@ package edu.uade.patitas_peludas.controller;
 import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.UserDTO;
 import edu.uade.patitas_peludas.service.IUserService;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,6 @@ public class UserController {
     public ResponseEntity<PageDTO<UserDTO>> findAll(@RequestParam(required = false) String name,
                                                     @RequestParam(required = false) String lastname,
                                                     @RequestParam(required = false) String dni,
-                                                    @RequestParam(required = false) @Pattern(regexp = "asc|desc") String sort,
                                                     @RequestParam(required = true) Short page) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAll(name, lastname, dni, page));
     }

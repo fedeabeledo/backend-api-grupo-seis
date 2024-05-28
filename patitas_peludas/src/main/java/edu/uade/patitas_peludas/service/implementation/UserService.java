@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,7 +69,7 @@ public class UserService implements IUserService {
     public UserDTO update(Long id, UserDTO user) {
         if (repository.existsById(id)) {
             User mappedUser = mapper.convertValue(user, User.class);
-            mappedUser.setId(id);
+            mappedUser.setId(id); // Aquí usamos setId
             User updated = repository.save(mappedUser);
             return mapper.convertValue(updated, UserDTO.class);
         } else {
