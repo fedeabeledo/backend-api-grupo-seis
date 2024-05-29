@@ -7,6 +7,8 @@ import lombok.Getter;
 import edu.uade.patitas_peludas.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -29,6 +31,20 @@ public class GlobalExceptionHandler {
         }
 
         return ResponseEntity.badRequest().body(new ErrorDTO(HttpStatus.BAD_REQUEST.value(), validationErrors));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<Map<String, String>>> processUnmergeException(final MethodArgumentNotValidException ex) {
+        List<Map<String, String>> validationErrors = new ArrayList<>();
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("field", ((FieldError) error).getField());
+            errorMap.put("message", error.getDefaultMessage());
+            validationErrors.add(errorMap);
+        });
+
+        return ResponseEntity.badRequest().body(validationErrors);
     }
 
     @Getter
