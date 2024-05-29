@@ -1,5 +1,6 @@
 package edu.uade.patitas_peludas.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,9 +37,14 @@ public class Invoice {
     @Column(name = "shipping_cost")
     private Short shippingCost;
 
-    public Invoice(User user, Short discount, Short shippingCost) {
+    @JsonProperty("payment_method")
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
+
+    public Invoice(User user, Short discount, Short shippingCost, PaymentMethod paymentMethod) {
         this.user = user;
         this.discount = discount;
         this.shippingCost = shippingCost;
+        this.paymentMethod = paymentMethod;
     }
 }

@@ -32,4 +32,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(InvalidPaymentMethod.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidPaymentMethod(InvalidPaymentMethod e) {
+        ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 }

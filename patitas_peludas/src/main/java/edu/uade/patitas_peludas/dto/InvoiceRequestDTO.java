@@ -27,4 +27,7 @@ public class InvoiceRequestDTO {
     @Min(0)
     @JsonProperty("shipping_cost")
     private Short shippingCost;
+
+    @JsonProperty("payment_method")
+    private String paymentMethod;
 }
