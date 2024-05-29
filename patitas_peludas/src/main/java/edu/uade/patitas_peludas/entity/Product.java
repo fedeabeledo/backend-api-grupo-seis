@@ -1,8 +1,17 @@
 package edu.uade.patitas_peludas.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
@@ -24,7 +33,7 @@ public class Product {
 
     @JsonProperty("image_url")
     @Column(name = "image_url")
-    private String image_url;
+    private String imageUrl;
 
     @Column
     private String brand;
@@ -42,7 +51,7 @@ public class Product {
 
     @JsonProperty("score_voters")
     @Column(name = "score_voters")
-    private Short score_voters;
+    private Short scoreVoters;
 
     @Column
     private Double price;
@@ -53,9 +62,12 @@ public class Product {
     @Column
     private Short stock;
 
-    @Getter
-    private enum PetCategory { CAT, DOG, FISH, HAMSTER }
+    @Column
+    private Boolean bestseller;
 
     @Getter
-    private enum PetStage { BABY, ADULT, SENIOR }
+    private enum PetCategory {CAT, DOG, FISH, HAMSTER}
+
+    @Getter
+    private enum PetStage {BABY, ADULT, SENIOR}
 }
