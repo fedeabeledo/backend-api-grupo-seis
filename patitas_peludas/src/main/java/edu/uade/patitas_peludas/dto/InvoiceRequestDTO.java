@@ -15,13 +15,16 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InvoiceRequestDTO {
-    Map<Long, Short> products;
+    private Map<Long, Short> products;
+
+    @JsonProperty("user_id")
+    private Long userId;
 
     @Min(0)
     @Max(100)
-    Short discount;
+    private Short discount;
 
     @Min(0)
     @JsonProperty("shipping_cost")
-    Short shippingCost;
+    private Short shippingCost;
 }

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequestMapping(value = "/api/invoice")
@@ -31,7 +33,13 @@ public class InvoiceController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<InvoiceResponseDTO> getInvoiceById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.getInvoiceById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<InvoiceResponseDTO>> getInvoicesByUserId(@PathVariable Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findByUserId(userId));
     }
 
 }

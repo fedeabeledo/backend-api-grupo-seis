@@ -26,7 +26,7 @@ public class UserService implements IUserService {
     @Autowired
     private ObjectMapper mapper;
 
-    String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
+    private final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
 
     @Override
     public PageDTO<UserDTO> findAll(String name, String lastname, String dni, Short page) {

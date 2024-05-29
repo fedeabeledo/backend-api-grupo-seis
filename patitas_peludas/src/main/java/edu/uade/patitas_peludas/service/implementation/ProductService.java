@@ -27,7 +27,7 @@ public class ProductService implements IProductService {
     @Autowired
     private ObjectMapper mapper;
 
-    String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
+    private final String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
 
     @Override
     public PageDTO<ProductDTO> findAll(String category, String brand, Double min, Double max, String sort, Short page) {
@@ -39,7 +39,7 @@ public class ProductService implements IProductService {
         List<ProductDTO> content = res.getContent().stream().map(product ->
                 mapper.convertValue(product, ProductDTO.class)).collect(Collectors.toList());
 
-        return new PageDTO<ProductDTO>(
+        return new PageDTO<>(
                 content,
                 res.getTotalPages(),
                 res.getTotalElements(),
@@ -58,13 +58,8 @@ public class ProductService implements IProductService {
 
     @Override
     public void deleteById(Long id) {
-        try {
-            Product product = repository.findById(id).orElseThrow();
-            repository.deleteById(id);
-        } catch (Exception e) {
-            throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
-        }
-
+        repository.findById(id).orElseThrow(() -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id)));
+        repository.deleteById(id);
     }
 
     @Override
