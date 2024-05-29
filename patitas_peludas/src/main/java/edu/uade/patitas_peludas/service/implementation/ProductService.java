@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +50,17 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public ProductDTO findById(Long id) {
+        Optional<Product> product = repository.findById(id);
+
+        if (product.isEmpty()) {
+            throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
+        }
+
+        return mapper.convertValue(product.get(), ProductDTO.class);
+    }
+
+    @Override
     public ProductDTO save(ProductDTO product) {
         Product entity = mapper.convertValue(product, Product.class);
         Product saved = repository.save(entity);
@@ -64,7 +76,6 @@ public class ProductService implements IProductService {
         } catch (Exception e) {
             throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
         }
-
     }
 
     @Override

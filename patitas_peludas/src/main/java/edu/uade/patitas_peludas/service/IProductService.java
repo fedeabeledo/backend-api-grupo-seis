@@ -6,6 +6,8 @@ import edu.uade.patitas_peludas.dto.ProductDTO;
 public interface IProductService {
     PageDTO<ProductDTO> findAll(String category, String brand, Double min, Double max, String sort, Short page);
 
+    ProductDTO findById(Long id);
+
     ProductDTO save(ProductDTO product);
 
     void deleteById(Long id);
