@@ -29,12 +29,14 @@ public class ProductController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageDTO<ProductDTO>> findAll(@RequestParam(required = false) @Pattern(regexp = "(?i)cat|dog|fish|hamster") String category,
+                                                       @RequestParam(required = false) @Size(min = 3) String keywords,
                                                        @RequestParam(required = false) @Size(min = 3) String brand,
                                                        @RequestParam(required = false) @PositiveOrZero Double min,
                                                        @RequestParam(required = false) @Positive Double max,
-                                                       @RequestParam(required = false) @Pattern(regexp = "(?i)asc|desc") String sort,
+                                                       @RequestParam(required = false) @Pattern(regexp = "(?i)asc|desc") String price,
+                                                       @RequestParam(required = false) @Pattern(regexp = "(?i)asc|desc") String bestseller,
                                                        @RequestParam(required = false) @NotNull @PositiveOrZero Short page) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(category, brand, min, max, sort, page));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(keywords, category, brand, min, max, price, bestseller, page));
     }
 
     @GetMapping("/{id}")

@@ -31,9 +31,10 @@ public class ProductService implements IProductService {
     String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
 
     @Override
-    public PageDTO<ProductDTO> findAll(String category, String brand, Double min, Double max, String sort, Short page) {
-        Pageable pageable = buildPageable(sort, page);
-        Specification<Product> spec = buildSpec(category, brand, min, max);
+    public PageDTO<ProductDTO> findAll(String keywords, String category, String brand, Double min, Double max,
+                                       String priceSort, String bestsellerSort, Short page) {
+        Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
+        Specification<Product> spec = buildSpec(category, brand, min, max, keywords);
 
         Page<Product> res = repository.findAll(spec, pageable);
 
@@ -90,14 +91,23 @@ public class ProductService implements IProductService {
         }
     }
 
-    private Pageable buildPageable(String sort, Short page) {
+    // sorts
+    private Pageable buildPageable(String priceSort, String bestsellerSort, Short page) {
         List<Sort.Order> orders = new ArrayList<>();
 
-        if (sort != null) {
-            if (sort.equalsIgnoreCase("desc")) {
-                orders.add(Sort.Order.desc("title"));
-            } else if (sort.equalsIgnoreCase("asc")) {
-                orders.add(Sort.Order.asc("title"));
+        if (priceSort != null) {
+            if (priceSort.equalsIgnoreCase("desc")) {
+                orders.add(Sort.Order.desc("price"));
+            } else if (priceSort.equalsIgnoreCase("asc")) {
+                orders.add(Sort.Order.asc("price"));
+            }
+        }
+
+        if (bestsellerSort != null) {
+            if (bestsellerSort.equalsIgnoreCase("desc")) {
+                orders.add(Sort.Order.desc("bestseller"));
+            } else if (bestsellerSort.equalsIgnoreCase("asc")) {
+                orders.add(Sort.Order.asc("bestseller"));
             }
         }
 
@@ -105,8 +115,17 @@ public class ProductService implements IProductService {
         return PageRequest.of(page, 12, sorted);
     }
 
-    private Specification<Product> buildSpec(String category, String brand, Double min, Double max) {
+    // search bar, shop pages, brands & price filters
+    private Specification<Product> buildSpec(String category, String brand, Double min, Double max, String keywords) {
         Specification<Product> spec = Specification.where(null);
+
+        if (category != null) {
+            spec = spec.and(ProductSpecification.categorySpec(category));
+        }
+
+        if (keywords != null) {
+            spec = spec.and(ProductSpecification.titleContainingSpec(keywords));
+        }
 
         if (category != null) {
             spec = spec.and(ProductSpecification.categorySpec(category));
