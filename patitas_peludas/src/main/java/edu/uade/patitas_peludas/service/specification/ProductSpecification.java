@@ -2,6 +2,7 @@ package edu.uade.patitas_peludas.service.specification;
 
 import edu.uade.patitas_peludas.entity.Product;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProductSpecification {
@@ -29,6 +30,23 @@ public class ProductSpecification {
             }
 
             return null;
+        };
+    }
+
+    public static Specification<Product> titleContainingSpec(String keyword) {
+        String[] keywords = keyword.toLowerCase().split("\\s+");
+
+        return (root, query, criteriaBuilder) -> {
+            Predicate[] predicates = new Predicate[keywords.length];
+
+            for (int i = 0; i < keywords.length; i++) {
+                predicates[i] = criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("title")),
+                        "%" + keywords[i] + "%"
+                );
+            }
+
+            return criteriaBuilder.and(predicates);
         };
     }
 

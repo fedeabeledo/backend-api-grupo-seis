@@ -39,13 +39,24 @@ public class ProductService implements IProductService {
         List<ProductDTO> content = res.getContent().stream().map(product ->
                 mapper.convertValue(product, ProductDTO.class)).collect(Collectors.toList());
 
-        return new PageDTO<ProductDTO>(
+        return new PageDTO<>(
                 content,
                 res.getTotalPages(),
                 res.getTotalElements(),
                 res.getNumber(),
                 res.getSize()
         );
+    }
+
+    @Override
+    public ProductDTO findById(Long id) {
+        Optional<Product> product = repository.findById(id);
+
+        if (product.isEmpty()) {
+            throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
+        }
+
+        return mapper.convertValue(product.get(), ProductDTO.class);
     }
 
     @Override
@@ -58,13 +69,8 @@ public class ProductService implements IProductService {
 
     @Override
     public void deleteById(Long id) {
-        try {
-            Product product = repository.findById(id).orElseThrow();
-            repository.deleteById(id);
-        } catch (Exception e) {
-            throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
-        }
-
+        repository.findById(id).orElseThrow(() -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id)));
+        repository.deleteById(id);
     }
 
     @Override
@@ -79,14 +85,23 @@ public class ProductService implements IProductService {
         }
     }
 
-    private Pageable buildPageable(String sort, Short page) {
+    // sorts
+    private Pageable buildPageable(String priceSort, String bestsellerSort, Short page) {
         List<Sort.Order> orders = new ArrayList<>();
 
-        if (sort != null) {
-            if (sort.equalsIgnoreCase("desc")) {
-                orders.add(Sort.Order.desc("title"));
-            } else if (sort.equalsIgnoreCase("asc")) {
-                orders.add(Sort.Order.asc("title"));
+        if (priceSort != null) {
+            if (priceSort.equalsIgnoreCase("desc")) {
+                orders.add(Sort.Order.desc("price"));
+            } else if (priceSort.equalsIgnoreCase("asc")) {
+                orders.add(Sort.Order.asc("price"));
+            }
+        }
+
+        if (bestsellerSort != null) {
+            if (bestsellerSort.equalsIgnoreCase("desc")) {
+                orders.add(Sort.Order.desc("bestseller"));
+            } else if (bestsellerSort.equalsIgnoreCase("asc")) {
+                orders.add(Sort.Order.asc("bestseller"));
             }
         }
 
@@ -94,8 +109,17 @@ public class ProductService implements IProductService {
         return PageRequest.of(page, 12, sorted);
     }
 
-    private Specification<Product> buildSpec(String category, String brand, Double min, Double max) {
+    // search bar, shop pages, brands & price filters
+    private Specification<Product> buildSpec(String category, String brand, Double min, Double max, String keywords) {
         Specification<Product> spec = Specification.where(null);
+
+        if (category != null) {
+            spec = spec.and(ProductSpecification.categorySpec(category));
+        }
+
+        if (keywords != null) {
+            spec = spec.and(ProductSpecification.titleContainingSpec(keywords));
+        }
 
         if (category != null) {
             spec = spec.and(ProductSpecification.categorySpec(category));
@@ -111,4 +135,6 @@ public class ProductService implements IProductService {
 
         return spec;
     }
+
+
 }
