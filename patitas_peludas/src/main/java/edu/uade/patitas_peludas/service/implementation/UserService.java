@@ -28,6 +28,7 @@ public class UserService implements IUserService {
 
     private final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
 
+
     @Override
     public PageDTO<UserDTO> findAll(String name, String lastname, String dni, Short page) {
         Pageable pageable = buildPageable(page);
