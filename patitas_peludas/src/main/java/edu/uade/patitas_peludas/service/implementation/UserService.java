@@ -69,12 +69,18 @@ public class UserService implements IUserService {
     public UserDTO update(Long id, UserDTO user) {
         if (repository.existsById(id)) {
             User mappedUser = mapper.convertValue(user, User.class);
-            mappedUser.setId(id); // Aquí usamos setId
+            mappedUser.setId(id);
             User updated = repository.save(mappedUser);
             return mapper.convertValue(updated, UserDTO.class);
         } else {
             throw new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR, id));
         }
+    }
+
+    @Override
+    public UserDTO findByEmail(String email) {
+        User user = repository.findByEmail(email);
+        return user != null ? mapper.convertValue(user, UserDTO.class) : null;
     }
 
     private Pageable buildPageable(Short page) {

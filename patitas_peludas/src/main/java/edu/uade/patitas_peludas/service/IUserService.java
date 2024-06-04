@@ -11,4 +11,6 @@ public interface IUserService {
     void deleteById(Long id);
 
     UserDTO update(Long id, UserDTO user);
+
+    UserDTO findByEmail(String email);
 }
