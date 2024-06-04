@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: patitas_peludas
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    password: root
+    username: root
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:patitaspeludas}?autoReconnect=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8080
