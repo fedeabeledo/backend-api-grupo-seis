@@ -43,4 +43,13 @@ public class UserController {
     public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody @Validated UserDTO user) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(id, user));
     }
+    @GetMapping("/email/{email}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<UserDTO> findByEmail(@PathVariable String email) {
+        UserDTO user = service.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
 }

@@ -3,6 +3,13 @@ package edu.uade.patitas_peludas.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.*;
+
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 
 public class UserDTO {
     private Long id;
