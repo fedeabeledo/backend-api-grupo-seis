@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,16 +31,17 @@ public class ProductService implements IProductService {
     String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
 
     @Override
-    public PageDTO<ProductDTO> findAll(String category, String brand, Double min, Double max, String sort, Short page) {
-        Pageable pageable = buildPageable(sort, page);
-        Specification<Product> spec = buildSpec(category, brand, min, max);
+    public PageDTO<ProductDTO> findAll(String keywords, String category, String brand, Double min, Double max,
+                                       String priceSort, String bestsellerSort, Short page) {
+        Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
+        Specification<Product> spec = buildSpec(category, brand, min, max, keywords);
 
         Page<Product> res = repository.findAll(spec, pageable);
 
         List<ProductDTO> content = res.getContent().stream().map(product ->
                 mapper.convertValue(product, ProductDTO.class)).collect(Collectors.toList());
 
-        return new PageDTO<>(
+        return new PageDTO<ProductDTO>(
                 content,
                 res.getTotalPages(),
                 res.getTotalElements(),
