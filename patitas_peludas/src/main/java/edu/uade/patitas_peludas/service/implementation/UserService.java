@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.UserDTO;
 import edu.uade.patitas_peludas.entity.User;
+import edu.uade.patitas_peludas.exception.UserExistsException;
 import edu.uade.patitas_peludas.exception.UserNotFoundException;
 import edu.uade.patitas_peludas.repository.UserRepository;
 import edu.uade.patitas_peludas.service.IUserService;
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,7 @@ public class UserService implements IUserService {
     private ObjectMapper mapper;
 
     private final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
+    private final String USER_EXISTS_ERROR = "User with email %s already exists.";
 
 
     @Override
@@ -50,6 +53,9 @@ public class UserService implements IUserService {
 
     @Override
     public UserDTO save(UserDTO user) {
+        if (repository.existsByEmail(user.getEmail())){
+            throw new UserExistsException(String.format(USER_EXISTS_ERROR, user.getEmail()));
+        }
         User entity = mapper.convertValue(user, User.class);
         User saved = repository.save(entity);
 

@@ -41,7 +41,7 @@ public class ProductService implements IProductService {
         List<ProductDTO> content = res.getContent().stream().map(product ->
                 mapper.convertValue(product, ProductDTO.class)).collect(Collectors.toList());
 
-        return new PageDTO<ProductDTO>(
+        return new PageDTO<>(
                 content,
                 res.getTotalPages(),
                 res.getTotalElements(),

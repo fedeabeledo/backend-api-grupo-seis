@@ -25,13 +25,15 @@ public class ProductDTO {
     private String petCategory;
     @JsonProperty("pet_stage")
     private String petStage;
+    @Min(0)
+    @Max(5)
     private Double score;
     @JsonProperty("score_voters")
     private Short scoreVoters;
     @Min(0)
     private Double price;
     @Min(0)
-    @Max(100)
+    @Max(95)
     private Short discount;
     @Min(0)
     private Short stock;

@@ -3,6 +3,8 @@ package edu.uade.patitas_peludas.exception;
 import edu.uade.patitas_peludas.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import jakarta.validation.ConstraintViolation;
@@ -19,7 +21,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorDTO> handleConstrainViolationException(ConstraintViolationException e) {
+    public ResponseEntity<ErrorDTO> handleConstraintViolationException(ConstraintViolationException e) {
         List<ErrorDetail> validationErrors = new ArrayList<>();
 
         for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
@@ -49,6 +51,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, List<Map<String, String>>>> processUnmergeException(final MethodArgumentNotValidException ex) {
+        Map<String, List<Map<String, String>>> errorResponse = new HashMap<>();
+        List<Map<String, String>> validationErrors = new ArrayList<>();
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("field", ((FieldError) error).getField());
+            errorMap.put("message", error.getDefaultMessage());
+            validationErrors.add(errorMap);
+        });
+
+        errorResponse.put("errors", validationErrors);
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
     @ExceptionHandler(InvoiceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleInvoiceNotFoundException(InvoiceNotFoundException e) {
         ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.NOT_FOUND.value());
@@ -63,6 +82,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidPaymentMethod.class)
     public ResponseEntity<ErrorResponseDTO> handleInvalidPaymentMethod(InvalidPaymentMethod e) {
+        ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(UserExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleUserExistsException(UserExistsException e) {
         ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
