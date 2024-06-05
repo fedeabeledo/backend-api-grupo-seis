@@ -66,8 +66,8 @@ public class Product {
     private Boolean bestseller;
 
     @Getter
-    private enum PetCategory {CAT, DOG, FISH, HAMSTER}
+    private enum PetCategory { CAT, DOG, FISH, HAMSTER }
 
     @Getter
-    private enum PetStage {BABY, ADULT, SENIOR}
+    private enum PetStage { BABY, ADULT, SENIOR }
 }
