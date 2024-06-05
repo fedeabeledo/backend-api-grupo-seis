@@ -3,6 +3,7 @@ package edu.uade.patitas_peludas.service.implementation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uade.patitas_peludas.dto.InvoiceRequestDTO;
 import edu.uade.patitas_peludas.dto.InvoiceResponseDTO;
+import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.ProductDTO;
 import edu.uade.patitas_peludas.dto.ProductInvoiceDTO;
 import edu.uade.patitas_peludas.dto.UserResponseDTO;
@@ -23,8 +24,12 @@ import edu.uade.patitas_peludas.repository.ProductRepository;
 import edu.uade.patitas_peludas.repository.UserRepository;
 import edu.uade.patitas_peludas.service.IInvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,12 +75,18 @@ public class InvoiceService implements IInvoiceService {
     }
 
     @Override
-    public List<InvoiceResponseDTO> findByUserId(Long userId) {
+    public PageDTO<InvoiceResponseDTO> findByUserId(Long userId, Short page) {
         userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR, userId))
         );
-        List<Invoice> invoices = invoiceRepository.findByUserId(userId);
-        return invoices.stream().map(this::convertInvoiceToInvoiceResponseDTO).collect(Collectors.toList());
+        Pageable pageable = buildPageable(page);
+        Page<Invoice> invoices = invoiceRepository.findByUserId(userId, pageable);
+        List<InvoiceResponseDTO> content = invoices.getContent().stream().map(this::convertInvoiceToInvoiceResponseDTO).collect(Collectors.toList());
+        return new PageDTO<>(content, invoices.getTotalPages(), invoices.getTotalElements(), invoices.getNumber(), invoices.getSize());
+    }
+
+    private Pageable buildPageable(Short page) {
+        return PageRequest.of(page, 12, Sort.by("id"));
     }
 
     private InvoiceResponseDTO convertInvoiceToInvoiceResponseDTO(Invoice invoice) {
