@@ -8,6 +8,7 @@ import edu.uade.patitas_peludas.dto.UserResponseDTO;
 import edu.uade.patitas_peludas.entity.User;
 import edu.uade.patitas_peludas.exception.IncorrectPasswordException;
 import edu.uade.patitas_peludas.exception.UserExistsException;
+import edu.uade.patitas_peludas.exception.UserNotActiveException;
 import edu.uade.patitas_peludas.exception.UserNotFoundException;
 import edu.uade.patitas_peludas.repository.UserRepository;
 import edu.uade.patitas_peludas.service.IUserService;
@@ -31,10 +32,11 @@ public class UserService implements IUserService {
     @Autowired
     private ObjectMapper mapper;
 
-    private final String USER_NOT_FOUND_ERROR_ID = "Could not find user with ID: %d.";
-    private final String USER_NOT_FOUND_ERROR_EMAIL = "Could not find user with email: %s.";
-    private final String USER_EXISTS_ERROR = "User with email %s already exists.";
-    private final String INCORRECT_PASSWORD_ERROR = "Incorrect password for user with email %s.";
+    private static final String USER_NOT_FOUND_ERROR_ID = "Could not find user with ID: %d.";
+    private static final String USER_NOT_FOUND_ERROR_EMAIL = "Could not find user with email: %s.";
+    private static final String USER_EXISTS_ERROR = "User with email %s already exists.";
+    private static final String INCORRECT_PASSWORD_ERROR = "Incorrect password for user with email %s.";
+    private static final String USER_NOT_ACTIVE_ERROR = "User with email %s is not active.";
 
 
     @Override
@@ -76,6 +78,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserResponseDTO update(Long id, UserRequestDTO user) {
+        user.setPassword(String.valueOf(user.getPassword().hashCode()));
         if (repository.existsById(id)) {
             User mappedUser = mapper.convertValue(user, User.class);
             mappedUser.setId(id);
@@ -103,6 +106,9 @@ public class UserService implements IUserService {
         }
         if (!(searchedUser.get().getPassword().equals(String.valueOf(user.getPassword().hashCode())))) {
             throw new IncorrectPasswordException(String.format(INCORRECT_PASSWORD_ERROR, user.getEmail()));
+        }
+        if(!searchedUser.get().getState()){
+            throw new UserNotActiveException(String.format(USER_NOT_ACTIVE_ERROR, user.getEmail()));
         }
         return mapper.convertValue(searchedUser.get(), UserResponseDTO.class);
     }
