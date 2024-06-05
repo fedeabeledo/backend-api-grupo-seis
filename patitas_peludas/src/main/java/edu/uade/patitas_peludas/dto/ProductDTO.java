@@ -33,7 +33,7 @@ public class ProductDTO {
     @Min(0)
     private Double price;
     @Min(0)
-    @Max(100)
+    @Max(95)
     private Short discount;
     @Min(0)
     private Short stock;
