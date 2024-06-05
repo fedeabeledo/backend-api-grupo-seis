@@ -1,7 +1,9 @@
 package edu.uade.patitas_peludas.controller;
 
 import edu.uade.patitas_peludas.dto.PageDTO;
-import edu.uade.patitas_peludas.dto.UserDTO;
+import edu.uade.patitas_peludas.dto.UserLoginDto;
+import edu.uade.patitas_peludas.dto.UserRequestDTO;
+import edu.uade.patitas_peludas.dto.UserResponseDTO;
 import edu.uade.patitas_peludas.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,16 +29,16 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<PageDTO<UserDTO>> findAll(@RequestParam(required = false) String name,
-                                                    @RequestParam(required = false) String lastname,
-                                                    @RequestParam(required = false) String dni,
-                                                    @RequestParam(required = true) Short page) {
+    public ResponseEntity<PageDTO<UserResponseDTO>> findAll(@RequestParam(required = false) String name,
+                                                            @RequestParam(required = false) String lastname,
+                                                            @RequestParam(required = false) String dni,
+                                                            @RequestParam(required = true) Short page) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findAll(name, lastname, dni, page));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserDTO> save(@RequestBody @Validated UserDTO user) {
+    public ResponseEntity<UserResponseDTO> save(@RequestBody @Validated UserRequestDTO user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(user));
     }
 
@@ -49,16 +51,18 @@ public class UserController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody @Validated UserDTO user) {
+    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Validated UserRequestDTO user) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(id, user));
     }
     @GetMapping("/email/{email}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<UserDTO> findByEmail(@PathVariable String email) {
-        UserDTO user = service.findByEmail(email);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+    public ResponseEntity<UserResponseDTO> findByEmail(@PathVariable String email) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findByEmail(email));
+    }
+
+    @GetMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<UserResponseDTO> login(@RequestBody UserLoginDto user) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.login(user));
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 public class InvoiceResponseDTO {
     private List<ProductInvoiceDTO> products;
 
-    private UserDTO user;
+    private UserResponseDTO user;
 
     private Short discount;
 

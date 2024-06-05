@@ -1,17 +1,21 @@
 package edu.uade.patitas_peludas.service;
 
 
-import edu.uade.patitas_peludas.dto.UserDTO;
+import edu.uade.patitas_peludas.dto.UserLoginDto;
+import edu.uade.patitas_peludas.dto.UserRequestDTO;
+import edu.uade.patitas_peludas.dto.UserResponseDTO;
 import edu.uade.patitas_peludas.dto.PageDTO;
 
 public interface IUserService {
-    PageDTO<UserDTO> findAll(String name, String lastname, String dni, Short page);
+    PageDTO<UserResponseDTO> findAll(String name, String lastname, String dni, Short page);
 
-    UserDTO save(UserDTO user);
+    UserResponseDTO save(UserRequestDTO user);
 
     void deleteById(Long id);
 
-    UserDTO update(Long id, UserDTO user);
+    UserResponseDTO update(Long id, UserRequestDTO user);
 
-    UserDTO findByEmail(String email);
+    UserResponseDTO findByEmail(String email);
+
+    UserResponseDTO login(UserLoginDto user);
 }

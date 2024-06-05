@@ -5,7 +5,7 @@ import edu.uade.patitas_peludas.dto.InvoiceRequestDTO;
 import edu.uade.patitas_peludas.dto.InvoiceResponseDTO;
 import edu.uade.patitas_peludas.dto.ProductDTO;
 import edu.uade.patitas_peludas.dto.ProductInvoiceDTO;
-import edu.uade.patitas_peludas.dto.UserDTO;
+import edu.uade.patitas_peludas.dto.UserResponseDTO;
 import edu.uade.patitas_peludas.entity.Invoice;
 import edu.uade.patitas_peludas.entity.InvoiceProduct;
 import edu.uade.patitas_peludas.entity.PaymentMethod;
@@ -90,7 +90,7 @@ public class InvoiceService implements IInvoiceService {
         }
 
         total += invoice.getShippingCost();
-        return new InvoiceResponseDTO(products, mapper.convertValue(invoice.getUser(), UserDTO.class), invoice.getDiscount(), invoice.getShippingCost(), invoice.getPaymentMethod().name(), total);
+        return new InvoiceResponseDTO(products, mapper.convertValue(invoice.getUser(), UserResponseDTO.class), invoice.getDiscount(), invoice.getShippingCost(), invoice.getPaymentMethod().name(), total);
     }
 
     private Invoice convertInvoiceRequestDTOToInvoice(InvoiceRequestDTO invoiceRequestDTO) {

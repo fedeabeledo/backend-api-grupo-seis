@@ -66,23 +66,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, List<Map<String, String>>>> processUnmergeException(final MethodArgumentNotValidException ex) {
-        Map<String, List<Map<String, String>>> errorResponse = new HashMap<>();
-        List<Map<String, String>> validationErrors = new ArrayList<>();
-
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            Map<String, String> errorMap = new HashMap<>();
-            errorMap.put("field", ((FieldError) error).getField());
-            errorMap.put("message", error.getDefaultMessage());
-            validationErrors.add(errorMap);
-        });
-
-        errorResponse.put("errors", validationErrors);
-
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
-
     @ExceptionHandler(InvoiceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleInvoiceNotFoundException(InvoiceNotFoundException e) {
         ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.NOT_FOUND.value());
@@ -103,6 +86,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserExistsException.class)
     public ResponseEntity<ErrorResponseDTO> handleUserExistsException(UserExistsException e) {
+        ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<ErrorResponseDTO> handleIncorrectPasswordException(IncorrectPasswordException e) {
         ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
