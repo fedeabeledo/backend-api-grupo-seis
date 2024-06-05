@@ -45,6 +45,13 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
+    }
+
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ProductDTO> save(@RequestBody @Validated ProductDTO product) {

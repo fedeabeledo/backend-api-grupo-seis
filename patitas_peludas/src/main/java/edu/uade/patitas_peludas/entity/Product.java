@@ -74,12 +74,5 @@ public class Product {
     private enum PetCategory { CAT, DOG, FISH, HAMSTER }
 
     @Getter
-    public enum PetStage {BABY, ADULT, SENIOR}
-
-    public static class StringToEnumConverter implements Converter<String, PetCategory> {
-        @Override
-        public PetCategory convert(String source) {
-            return PetCategory.valueOf(source.toUpperCase());
-        }
-    }
+    private enum PetStage { BABY, ADULT, SENIOR }
 }

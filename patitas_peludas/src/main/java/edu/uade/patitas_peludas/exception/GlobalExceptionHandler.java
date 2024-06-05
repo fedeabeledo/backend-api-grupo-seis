@@ -12,6 +12,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.util.*;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
@@ -29,6 +30,20 @@ public class GlobalExceptionHandler {
         }
 
         return ResponseEntity.badRequest().body(new ErrorDTO(HttpStatus.BAD_REQUEST.value(), validationErrors));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<Map<String, String>>> processUnmergeException(final MethodArgumentNotValidException ex) {
+        List<Map<String, String>> validationErrors = new ArrayList<>();
+
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("field", ((FieldError) error).getField());
+            errorMap.put("message", error.getDefaultMessage());
+            validationErrors.add(errorMap);
+        });
+
+        return ResponseEntity.badRequest().body(validationErrors);
     }
 
     @Getter
