@@ -16,35 +16,26 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProductDTO {
     private Long id;
-
     private String title;
-
     private String description;
-
     @JsonProperty("image_url")
     private String imageUrl;
-
     private String brand;
-
     @JsonProperty("pet_category")
     private String petCategory;
-
     @JsonProperty("pet_stage")
     private String petStage;
-
+    @Min(0)
+    @Max(5)
     private Double score;
-
     @JsonProperty("score_voters")
     private Short scoreVoters;
-
     @Min(0)
     private Double price;
-
     @Min(0)
-    @Max(100)
+    @Max(95)
     private Short discount;
-
     @Min(0)
-    @Max(99)
     private Short stock;
+    private Boolean bestseller;
 }

@@ -1,6 +1,10 @@
 package edu.uade.patitas_peludas.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.core.convert.converter.Converter;
 
 @Builder
 @Getter
@@ -62,9 +67,12 @@ public class Product {
     @Column
     private Short stock;
 
-    @Getter
-    private enum PetCategory {CAT, DOG, FISH, HAMSTER}
+    @Column
+    private Boolean bestseller;
 
     @Getter
-    private enum PetStage {BABY, ADULT, SENIOR}
+    private enum PetCategory { CAT, DOG, FISH, HAMSTER }
+
+    @Getter
+    private enum PetStage { BABY, ADULT, SENIOR }
 }

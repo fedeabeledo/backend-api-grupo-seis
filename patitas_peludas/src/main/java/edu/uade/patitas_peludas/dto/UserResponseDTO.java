@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class UserDTO {
+public class UserResponseDTO {
     private Long id;
 
     @NotBlank
