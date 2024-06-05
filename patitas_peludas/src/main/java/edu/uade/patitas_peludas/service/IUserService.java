@@ -18,4 +18,6 @@ public interface IUserService {
     UserResponseDTO findByEmail(String email);
 
     UserResponseDTO login(UserLoginDto user);
+
+    UserResponseDTO updateState(Long id, boolean state);
 }

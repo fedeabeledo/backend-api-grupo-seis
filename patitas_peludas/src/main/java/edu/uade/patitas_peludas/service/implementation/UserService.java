@@ -107,6 +107,14 @@ public class UserService implements IUserService {
         return mapper.convertValue(searchedUser.get(), UserResponseDTO.class);
     }
 
+    @Override
+    public UserResponseDTO updateState(Long id, boolean state) {
+        User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_ID, id)));
+        user.setState(state);
+        User updated = repository.save(user);
+        return mapper.convertValue(updated, UserResponseDTO.class);
+    }
+
     private Pageable buildPageable(Short page) {
         Sort sort = Sort.by(Sort.Order.asc("lastname"));
         return PageRequest.of(page, 12, sort);

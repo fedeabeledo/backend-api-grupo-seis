@@ -34,16 +34,20 @@ public class Invoice {
     @Column
     private Short discount;
 
+    @Column(name = "shipping_method")
+    private ShippingMethod shippingMethod;
+
     @Column(name = "shipping_cost")
-    private Short shippingCost;
+    private Double shippingCost;
 
     @JsonProperty("payment_method")
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
 
-    public Invoice(User user, Short discount, Short shippingCost, PaymentMethod paymentMethod) {
+    public Invoice(User user, Short discount, ShippingMethod shippingMethod, Double shippingCost, PaymentMethod paymentMethod) {
         this.user = user;
         this.discount = discount;
+        this.shippingMethod = shippingMethod;
         this.shippingCost = shippingCost;
         this.paymentMethod = paymentMethod;
     }

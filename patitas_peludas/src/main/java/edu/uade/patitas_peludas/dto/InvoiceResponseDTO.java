@@ -19,8 +19,11 @@ public class InvoiceResponseDTO {
 
     private Short discount;
 
+    @JsonProperty("shipping_method")
+    private String shippingMethod;
+
     @JsonProperty("shipping_cost")
-    private Short shippingCost;
+    private Double shippingCost;
 
     @JsonProperty("payment_method")
     private String paymentMethod;

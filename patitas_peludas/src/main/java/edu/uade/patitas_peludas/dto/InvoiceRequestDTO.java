@@ -20,13 +20,8 @@ public class InvoiceRequestDTO {
     @JsonProperty("user_id")
     private Long userId;
 
-    @Min(0)
-    @Max(100)
-    private Short discount;
-
-    @Min(0)
-    @JsonProperty("shipping_cost")
-    private Short shippingCost;
+    @JsonProperty("shipping_method")
+    private String shippingMethod;
 
     @JsonProperty("payment_method")
     private String paymentMethod;

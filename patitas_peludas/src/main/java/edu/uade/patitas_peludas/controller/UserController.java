@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,6 +55,13 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Validated UserRequestDTO user) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(id, user));
     }
+
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<UserResponseDTO> updateState(@PathVariable Long id, @RequestParam boolean state) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.updateState(id, state));
+    }
+
     @GetMapping("/email/{email}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UserResponseDTO> findByEmail(@PathVariable String email) {
@@ -62,7 +70,7 @@ public class UserController {
 
     @GetMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<UserResponseDTO> login(@RequestBody UserLoginDto user) {
+    public ResponseEntity<UserResponseDTO> login(@RequestBody @Validated UserLoginDto user) {
         return ResponseEntity.status(HttpStatus.OK).body(service.login(user));
     }
 }

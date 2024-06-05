@@ -10,8 +10,10 @@ import edu.uade.patitas_peludas.entity.Invoice;
 import edu.uade.patitas_peludas.entity.InvoiceProduct;
 import edu.uade.patitas_peludas.entity.PaymentMethod;
 import edu.uade.patitas_peludas.entity.Product;
+import edu.uade.patitas_peludas.entity.ShippingMethod;
 import edu.uade.patitas_peludas.entity.User;
-import edu.uade.patitas_peludas.exception.InvalidPaymentMethod;
+import edu.uade.patitas_peludas.exception.InvalidPaymentMethodException;
+import edu.uade.patitas_peludas.exception.InvalidShippingMethodException;
 import edu.uade.patitas_peludas.exception.InvoiceNotFoundException;
 import edu.uade.patitas_peludas.exception.ProductNotFoundException;
 import edu.uade.patitas_peludas.exception.UserNotFoundException;
@@ -42,11 +44,13 @@ public class InvoiceService implements IInvoiceService {
     @Autowired
     private ObjectMapper mapper;
 
-    private final String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
-    private final String NOT_ENOUGH_STOCK_ERROR = "Not enough stock for product with ID: %d.";
-    private final String INVOICE_NOT_FOUND_ERROR = "Could not find invoice with ID: %d.";
-    private final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
-    private final String INVALID_PAYMENT_METHOD_ERROR = "%s is an invalid payment method.";
+    private static final String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
+    private static final String NOT_ENOUGH_STOCK_ERROR = "Not enough stock for product with ID: %d.";
+    private static final String INVOICE_NOT_FOUND_ERROR = "Could not find invoice with ID: %d.";
+    private static final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
+    private static final String INVALID_PAYMENT_METHOD_ERROR = "%s is an invalid payment method.";
+    private static final String INVALID_SHIPPING_METHOD_ERROR = "%s is an invalid shipping method.";
+
 
     @Override
     public InvoiceResponseDTO create(InvoiceRequestDTO invoiceRequestDTO) {
@@ -83,14 +87,17 @@ public class InvoiceService implements IInvoiceService {
         }).collect(Collectors.toList());
         Double total = invoiceProducts.stream().mapToDouble(invoiceProduct -> invoiceProduct.getUnitPrice() * invoiceProduct.getQuantity()).sum();
         total = total - (total * (invoice.getDiscount() / 100.0));
-
-        if (total > 50000) {
-            invoice.setShippingCost((short) 0);
-            invoiceRepository.save(invoice);
-        }
-
         total += invoice.getShippingCost();
-        return new InvoiceResponseDTO(products, mapper.convertValue(invoice.getUser(), UserResponseDTO.class), invoice.getDiscount(), invoice.getShippingCost(), invoice.getPaymentMethod().name(), total);
+
+        return new InvoiceResponseDTO(
+                products,
+                mapper.convertValue(invoice.getUser(), UserResponseDTO.class),
+                invoice.getDiscount(),
+                invoice.getShippingMethod().name(),
+                invoice.getShippingCost(),
+                invoice.getPaymentMethod().name(),
+                total
+        );
     }
 
     private Invoice convertInvoiceRequestDTOToInvoice(InvoiceRequestDTO invoiceRequestDTO) {
@@ -100,12 +107,48 @@ public class InvoiceService implements IInvoiceService {
         PaymentMethod paymentMethod;
 
         try {
-            paymentMethod = PaymentMethod.valueOf(invoiceRequestDTO.getPaymentMethod());
+            paymentMethod = PaymentMethod.valueOf(invoiceRequestDTO.getPaymentMethod().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new InvalidPaymentMethod(String.format(INVALID_PAYMENT_METHOD_ERROR, invoiceRequestDTO.getPaymentMethod()));
+            throw new InvalidPaymentMethodException(String.format(INVALID_PAYMENT_METHOD_ERROR, invoiceRequestDTO.getPaymentMethod()));
+        }
+        Short discount = getDiscount(paymentMethod);
+
+        Double subtotal = invoiceRequestDTO.getProducts().entrySet().stream().mapToDouble(entry -> {
+            Product product = productRepository.findById(entry.getKey()).orElseThrow(
+                    () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, entry.getKey()))
+            );
+            return product.getPrice() * entry.getValue();
+        }).sum();
+
+        ShippingMethod shippingMethod;
+        try {
+            shippingMethod = ShippingMethod.valueOf(invoiceRequestDTO.getShippingMethod().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidShippingMethodException(String.format(INVALID_SHIPPING_METHOD_ERROR, invoiceRequestDTO.getShippingMethod()));
         }
 
-        return new Invoice(user, invoiceRequestDTO.getDiscount(), invoiceRequestDTO.getShippingCost(), paymentMethod);
+        Double shippingCost = getShippingCost(shippingMethod, subtotal);
+
+        return new Invoice(user, discount, shippingMethod, shippingCost, paymentMethod);
+    }
+
+    private Short getDiscount(PaymentMethod paymentMethod) {
+        return switch (paymentMethod) {
+            case WIRE -> 10;
+            case CREDIT_CARD -> 5;
+            default -> 0;
+        };
+    }
+
+    private Double getShippingCost(ShippingMethod shippingMethod, Double total) {
+        if (total > 50000) {
+            return 0.0;
+        }
+        return switch (shippingMethod) {
+            case ANDREANI -> 2500.0;
+            case CORREO_ARGENTINO -> 3000.0;
+            default -> 0.0;
+        };
     }
 
     private List<InvoiceProduct> createInvoiceProducts(InvoiceRequestDTO invoiceRequestDTO, Invoice invoice) {
