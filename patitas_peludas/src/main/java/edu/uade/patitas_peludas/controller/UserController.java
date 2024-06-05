@@ -62,9 +62,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(service.updateState(id, state));
     }
 
-    @GetMapping("/email/{email}")
+    @GetMapping("/email")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<UserResponseDTO> findByEmail(@PathVariable String email) {
+    public ResponseEntity<UserResponseDTO> findByEmail(@RequestParam String email) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findByEmail(email));
     }
 
