@@ -37,7 +37,7 @@ public class SecurityConfig {
         http
                 .cors((httpSecurityCorsConfigurer -> corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("/api/product").authenticated()
+                        authorize.requestMatchers("/api/product").hasAuthority("VENDOR")
                         .anyRequest().permitAll())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(daoAuthenticationProvider())

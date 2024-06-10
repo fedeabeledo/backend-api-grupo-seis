@@ -38,14 +38,18 @@ public class User implements UserDetails {
     private String password;
 
     @Column(name = "role", length = 45)
-    private String role;
+    private Role role;
+
+    private enum Role {
+        VENDOR, BUYER
+    }
 
     @Column(name = "state", nullable = false)
     private Boolean state;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(this.role));
+        return Collections.singleton(new SimpleGrantedAuthority(this.role.name()));
     }
 
     @Override
