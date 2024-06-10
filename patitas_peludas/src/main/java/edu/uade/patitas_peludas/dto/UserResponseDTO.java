@@ -10,7 +10,6 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class UserResponseDTO {
     private Long id;
 
@@ -37,5 +36,7 @@ public class UserResponseDTO {
     private String role;
 
     private Boolean state;
+
+    private String token;
 
 }

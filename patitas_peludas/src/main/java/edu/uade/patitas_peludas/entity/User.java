@@ -2,13 +2,19 @@ package edu.uade.patitas_peludas.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.Collections;
+
+@Setter
 @Getter
 @Entity
 @Table(name = "User")
-public class User {
-
-    // Getters y Setters
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,35 +43,33 @@ public class User {
     @Column(name = "state", nullable = false)
     private Boolean state;
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(this.role));
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String getUsername() {
+        return name+" "+lastname;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public void setDni(String dni) {
-        this.dni = dni;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public void setState(Boolean state) {
-        this.state = state;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

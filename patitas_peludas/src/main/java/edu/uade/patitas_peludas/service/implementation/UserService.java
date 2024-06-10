@@ -6,10 +6,10 @@ import edu.uade.patitas_peludas.dto.UserLoginDto;
 import edu.uade.patitas_peludas.dto.UserRequestDTO;
 import edu.uade.patitas_peludas.dto.UserResponseDTO;
 import edu.uade.patitas_peludas.entity.User;
-import edu.uade.patitas_peludas.exception.IncorrectPasswordException;
 import edu.uade.patitas_peludas.exception.UserExistsException;
 import edu.uade.patitas_peludas.exception.UserNotActiveException;
 import edu.uade.patitas_peludas.exception.UserNotFoundException;
+import edu.uade.patitas_peludas.jwt.JwtUtils;
 import edu.uade.patitas_peludas.repository.UserRepository;
 import edu.uade.patitas_peludas.service.IUserService;
 import edu.uade.patitas_peludas.service.specification.UserSpecification;
@@ -19,6 +19,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,11 +32,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService implements IUserService {
+public class UserService implements IUserService, UserDetailsService {
     @Autowired
     private UserRepository repository;
     @Autowired
     private ObjectMapper mapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtils jwtUtils;
 
     private static final String USER_NOT_FOUND_ERROR_ID = "Could not find user with ID: %d.";
     private static final String USER_NOT_FOUND_ERROR_EMAIL = "Could not find user with email: %s.";
@@ -60,7 +70,7 @@ public class UserService implements IUserService {
 
     @Override
     public UserResponseDTO save(UserRequestDTO user) {
-        user.setPassword(String.valueOf(user.getPassword().hashCode()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (repository.existsByEmail(user.getEmail())) {
             throw new UserExistsException(String.format(USER_EXISTS_ERROR, user.getEmail()));
         }
@@ -100,17 +110,21 @@ public class UserService implements IUserService {
 
     @Override
     public UserResponseDTO login(UserLoginDto user) {
-        Optional<User> searchedUser = repository.findByEmail(user.getEmail());
-        if (searchedUser.isEmpty()) {
-            throw new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_EMAIL, user.getEmail()));
+        UserDetails userDetails = loadUserByUsername(user.getEmail());
+
+        if (userDetails != null) {
+            UserResponseDTO searchedUser = findByEmail(user.getEmail());
+
+            if (!searchedUser.getState()) {
+                throw new UserNotActiveException(String.format(USER_NOT_ACTIVE_ERROR, user.getEmail()));
+            }
+
+            String token = jwtUtils.generateToken((User) userDetails);
+            searchedUser.setToken("Bearer " + token);
+            return searchedUser;
         }
-        if (!(searchedUser.get().getPassword().equals(String.valueOf(user.getPassword().hashCode())))) {
-            throw new IncorrectPasswordException(String.format(INCORRECT_PASSWORD_ERROR, user.getEmail()));
-        }
-        if(!searchedUser.get().getState()){
-            throw new UserNotActiveException(String.format(USER_NOT_ACTIVE_ERROR, user.getEmail()));
-        }
-        return mapper.convertValue(searchedUser.get(), UserResponseDTO.class);
+
+        throw new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_EMAIL, user.getEmail()));
     }
 
     @Override
@@ -141,5 +155,14 @@ public class UserService implements IUserService {
             spec = spec.and(UserSpecification.dniSpec(dni));
         }
         return spec;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> searchedUser = repository.findByEmail(username);
+        if (searchedUser.isEmpty()) {
+            throw new UserNotFoundException("User not found.");
+        }
+        return searchedUser.get();
     }
 }
