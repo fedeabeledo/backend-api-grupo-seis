@@ -1,10 +1,7 @@
 package edu.uade.patitas_peludas.service.implementation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.uade.patitas_peludas.dto.PageDTO;
-import edu.uade.patitas_peludas.dto.UserLoginDto;
-import edu.uade.patitas_peludas.dto.UserRequestDTO;
-import edu.uade.patitas_peludas.dto.UserResponseDTO;
+import edu.uade.patitas_peludas.dto.*;
 import edu.uade.patitas_peludas.entity.User;
 import edu.uade.patitas_peludas.exception.UserExistsException;
 import edu.uade.patitas_peludas.exception.UserNotActiveException;
@@ -19,8 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -109,7 +104,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public UserResponseDTO login(UserLoginDto user) {
+    public UserLoginResponseDTO login(UserLoginRequestDto user) {
         UserDetails userDetails = loadUserByUsername(user.getEmail());
 
         if (userDetails != null) {
@@ -120,8 +115,7 @@ public class UserService implements IUserService, UserDetailsService {
             }
 
             String token = jwtUtils.generateToken((User) userDetails);
-            searchedUser.setToken("Bearer " + token);
-            return searchedUser;
+            return new UserLoginResponseDTO(token);
         }
 
         throw new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_EMAIL, user.getEmail()));

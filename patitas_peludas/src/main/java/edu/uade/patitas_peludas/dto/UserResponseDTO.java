@@ -36,7 +36,4 @@ public class UserResponseDTO {
     private String role;
 
     private Boolean state;
-
-    private String token;
-
 }

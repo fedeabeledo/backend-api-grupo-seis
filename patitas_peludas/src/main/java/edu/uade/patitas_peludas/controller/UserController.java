@@ -1,9 +1,6 @@
 package edu.uade.patitas_peludas.controller;
 
-import edu.uade.patitas_peludas.dto.PageDTO;
-import edu.uade.patitas_peludas.dto.UserLoginDto;
-import edu.uade.patitas_peludas.dto.UserRequestDTO;
-import edu.uade.patitas_peludas.dto.UserResponseDTO;
+import edu.uade.patitas_peludas.dto.*;
 import edu.uade.patitas_peludas.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,7 +71,7 @@ public class UserController {
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<UserResponseDTO> login(@RequestBody @Validated UserLoginDto user) {
+    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody @Validated UserLoginRequestDto user) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         return ResponseEntity.status(HttpStatus.OK).body(service.login(user));
     }
