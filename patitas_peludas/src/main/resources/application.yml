@@ -4,6 +4,10 @@ spring:
       accept-case-insensitive-enums: true
   application:
     name: patitas_peludas
+    jwt:
+      secretKey: securesecretsecuresecretsecuresecretsecuresecretsecuresecret
+      tokenPrefix: Bearer
+      tokenExpirationAfterDays: 14
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
