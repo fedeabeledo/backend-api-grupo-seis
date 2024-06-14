@@ -114,4 +114,16 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+    @ExceptionHandler(InvalidShippingDataException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidShippingDataException(InvalidShippingDataException e) {
+        ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidFourDigitsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidFourDigitsException(InvalidFourDigitsException e) {
+        ErrorResponseDTO error = new ErrorResponseDTO(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
 }

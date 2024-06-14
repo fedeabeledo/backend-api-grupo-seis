@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -15,7 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InvoiceRequestDTO {
-    private Map<Long, Short> products;
+    private List<ProductsInvoiceRequestDTO> products;
 
     @JsonProperty("user_id")
     private Long userId;
@@ -25,4 +26,10 @@ public class InvoiceRequestDTO {
 
     @JsonProperty("payment_method")
     private String paymentMethod;
+
+    @JsonProperty("shipping_data")
+    private String shippingData;
+
+    @JsonProperty("last_four_digits")
+    private String lastFourDigits;
 }

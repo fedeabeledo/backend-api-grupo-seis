@@ -44,11 +44,21 @@ public class Invoice {
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
 
-    public Invoice(User user, Short discount, ShippingMethod shippingMethod, Double shippingCost, PaymentMethod paymentMethod) {
+    @JsonProperty("shipping_data")
+    @Column(name = "shipping_data")
+    private String shippingData;
+
+    @JsonProperty("last_four_digits")
+    @Column(name = "last_four_digits")
+    private String lastFourDigits;
+
+    public Invoice(User user, Short discount, ShippingMethod shippingMethod, Double shippingCost, PaymentMethod paymentMethod, String shippingData, String lastFourDigits) {
         this.user = user;
         this.discount = discount;
         this.shippingMethod = shippingMethod;
         this.shippingCost = shippingCost;
         this.paymentMethod = paymentMethod;
+        this.shippingData = shippingData;
+        this.lastFourDigits = lastFourDigits;
     }
 }
