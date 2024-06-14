@@ -40,8 +40,8 @@ public class User implements UserDetails {
     @Column(name = "role", length = 45)
     private Role role;
 
-    private enum Role {
-        VENDOR, BUYER
+    public enum Role {
+        VENDOR, BUYER, ADMIN
     }
 
     @Column(name = "state", nullable = false)

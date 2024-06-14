@@ -18,6 +18,7 @@ import edu.uade.patitas_peludas.exception.InvalidPaymentMethodException;
 import edu.uade.patitas_peludas.exception.InvalidShippingDataException;
 import edu.uade.patitas_peludas.exception.InvalidShippingMethodException;
 import edu.uade.patitas_peludas.exception.InvoiceNotFoundException;
+import edu.uade.patitas_peludas.exception.NotBuyerException;
 import edu.uade.patitas_peludas.exception.ProductNotFoundException;
 import edu.uade.patitas_peludas.exception.UserNotFoundException;
 import edu.uade.patitas_peludas.repository.InvoiceProductRepository;
@@ -59,10 +60,17 @@ public class InvoiceService implements IInvoiceService {
     private static final String INVALID_SHIPPING_METHOD_ERROR = "%s is an invalid shipping method.";
     private static final String INVALID_SHIPPING_DATA_ERROR = "Shipping data is required for shipping.";
     private static final String INVALID_LAST_FOUR_DIGITS_ERROR = "Last four digits are required for credit card payment.";
+    private static final String NOT_BUYER_ERROR = "User with ID: %d is not a buyer.";
 
 
     @Override
     public InvoiceResponseDTO create(InvoiceRequestDTO invoiceRequestDTO) {
+        User user = userRepository.findById(invoiceRequestDTO.getUserId()).orElseThrow(
+                () -> new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR, invoiceRequestDTO.getUserId()))
+        );
+        if (!user.getRole().equals(User.Role.BUYER)) {
+            throw new NotBuyerException(String.format(NOT_BUYER_ERROR, user.getId()));
+        }
         Invoice invoice = convertInvoiceRequestDTOToInvoice(invoiceRequestDTO);
         invoiceRepository.save(invoice);
         List<InvoiceProduct> invoiceProducts = createInvoiceProducts(invoiceRequestDTO, invoice);
