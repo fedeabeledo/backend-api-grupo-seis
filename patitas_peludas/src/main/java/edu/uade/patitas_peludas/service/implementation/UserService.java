@@ -40,14 +40,13 @@ public class UserService implements IUserService, UserDetailsService {
     private static final String USER_NOT_FOUND_ERROR_ID = "Could not find user with ID: %d.";
     private static final String USER_NOT_FOUND_ERROR_EMAIL = "Could not find user with email: %s.";
     private static final String USER_EXISTS_ERROR = "User with email %s already exists.";
-    private static final String INCORRECT_PASSWORD_ERROR = "Incorrect password for user with email %s.";
     private static final String USER_NOT_ACTIVE_ERROR = "User with email %s is not active.";
 
 
     @Override
-    public PageDTO<UserResponseDTO> findAll(String name, String lastname, String dni, Short page) {
-        Pageable pageable = buildPageable(page);
-        Specification<User> spec = buildSpec(name, lastname, dni);
+    public PageDTO<UserResponseDTO> findAll(String name, String lastname, String email, String sort, Short page) {
+        Pageable pageable = buildPageable(sort, page);
+        Specification<User> spec = buildSpec(name, lastname, email);
 
         Page<User> res = repository.findAll(spec, pageable);
 
@@ -129,12 +128,23 @@ public class UserService implements IUserService, UserDetailsService {
         return mapper.convertValue(updated, UserResponseDTO.class);
     }
 
-    private Pageable buildPageable(Short page) {
-        Sort sort = Sort.by(Sort.Order.asc("lastname"));
-        return PageRequest.of(page, 12, sort);
+    private Pageable buildPageable(String sort, Short page) {
+        List<String> sortCandidates = List.of("name", "lastname", "dni", "phone", "email", "role", "state");
+        if (sort != null) {
+            if (sortCandidates.contains(sort.toLowerCase())) {
+                if (sort.equalsIgnoreCase("phone")) {
+                    Sort sorted = Sort.by(Sort.Order.asc("phoneNumber"));
+                    return PageRequest.of(page, 12, sorted);
+                }
+                Sort sorted = Sort.by(Sort.Order.asc(sort.toLowerCase()));
+                return PageRequest.of(page, 12, sorted);
+            }
+        }
+        Sort sorted = Sort.by(Sort.Order.asc("id"));
+        return PageRequest.of(page, 12, sorted);
     }
 
-    private Specification<User> buildSpec(String name, String lastname, String dni) {
+    private Specification<User> buildSpec(String name, String lastname, String email) {
         Specification<User> spec = Specification.where(null);
 
         if (name != null) {
@@ -145,8 +155,8 @@ public class UserService implements IUserService, UserDetailsService {
             spec = spec.and(UserSpecification.lastnameSpec(lastname));
         }
 
-        if (dni != null) {
-            spec = spec.and(UserSpecification.dniSpec(dni));
+        if (email != null) {
+            spec = spec.and(UserSpecification.emailSpec(email));
         }
         return spec;
     }
