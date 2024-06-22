@@ -35,8 +35,9 @@ public class ProductController {
                                                        @RequestParam(required = false) @Positive Double max,
                                                        @RequestParam(required = false) @Pattern(regexp = "(?i)asc|desc") String price,
                                                        @RequestParam(required = false) @Pattern(regexp = "(?i)asc|desc") String bestseller,
+                                                       @RequestParam(required = false) @Pattern(regexp = "(?i)baby|adult|senior") String stage,
                                                        @RequestParam(required = false) @NotNull @PositiveOrZero Short page) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(keywords, category, brand, min, max, price, bestseller, page));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(keywords, category, brand, min, max, price, bestseller, page, stage));
     }
 
     @GetMapping("/{id}")
