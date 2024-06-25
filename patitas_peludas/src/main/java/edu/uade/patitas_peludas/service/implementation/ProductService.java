@@ -3,8 +3,11 @@ package edu.uade.patitas_peludas.service.implementation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.ProductDTO;
+import edu.uade.patitas_peludas.entity.InvoiceProduct;
 import edu.uade.patitas_peludas.entity.Product;
 import edu.uade.patitas_peludas.exception.ProductNotFoundException;
+import edu.uade.patitas_peludas.repository.InvoiceProductRepository;
+import edu.uade.patitas_peludas.repository.InvoiceRepository;
 import edu.uade.patitas_peludas.repository.ProductRepository;
 import edu.uade.patitas_peludas.service.IProductService;
 import edu.uade.patitas_peludas.service.specification.ProductSpecification;
@@ -27,6 +30,8 @@ public class ProductService implements IProductService {
     private ProductRepository repository;
     @Autowired
     private ObjectMapper mapper;
+    @Autowired
+    private InvoiceProductRepository invoiceProductRepository;
 
     String PRODUCT_NOT_FOUND_ERROR = "Could not find product with ID: %d.";
 
@@ -72,6 +77,8 @@ public class ProductService implements IProductService {
     @Override
     public void deleteById(Long id) {
         repository.findById(id).orElseThrow(() -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id)));
+        List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findByProductId(id);
+        invoiceProductRepository.deleteAll(invoiceProducts);
         repository.deleteById(id);
     }
 
