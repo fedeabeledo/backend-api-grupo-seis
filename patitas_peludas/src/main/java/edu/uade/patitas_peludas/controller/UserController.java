@@ -1,7 +1,13 @@
 package edu.uade.patitas_peludas.controller;
 
-import edu.uade.patitas_peludas.dto.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import edu.uade.patitas_peludas.dto.PageDTO;
+import edu.uade.patitas_peludas.dto.UserLoginRequestDto;
+import edu.uade.patitas_peludas.dto.UserLoginResponseDTO;
+import edu.uade.patitas_peludas.dto.UserRequestDTO;
+import edu.uade.patitas_peludas.dto.UserResponseDTO;
 import edu.uade.patitas_peludas.service.IUserService;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +39,10 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageDTO<UserResponseDTO>> findAll(@RequestParam(required = false) String name,
                                                             @RequestParam(required = false) String lastname,
-                                                            @RequestParam(required = false) String dni,
+                                                            @RequestParam(required = false) String email,
+                                                            @RequestParam(required = false) @Pattern(regexp = "(?i)id|name|lastname|dni|phone|email|role|state") String sort,
                                                             @RequestParam(required = true) Short page) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(name, lastname, dni, page));
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAll(name, lastname, email, sort, page));
     }
 
     @PostMapping

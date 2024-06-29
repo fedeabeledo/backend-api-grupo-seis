@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface InvoiceProductRepository extends JpaRepository<InvoiceProduct, Long> {
     List<InvoiceProduct> findByInvoiceId(Long invoiceId);
+
+    List<InvoiceProduct> findByProductId(Long productId);
 }

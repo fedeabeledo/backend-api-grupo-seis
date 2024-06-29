@@ -4,7 +4,7 @@ package edu.uade.patitas_peludas.service;
 import edu.uade.patitas_peludas.dto.*;
 
 public interface IUserService {
-    PageDTO<UserResponseDTO> findAll(String name, String lastname, String dni, Short page);
+    PageDTO<UserResponseDTO> findAll(String name, String lastname, String email, String sort, Short page);
 
     UserResponseDTO save(UserRequestDTO user);
 
