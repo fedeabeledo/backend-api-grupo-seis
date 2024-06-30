@@ -11,7 +11,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductInvoiceDTO {
-    private ProductDTO product;
+public class ProductInvoiceResponseDTO {
+    private String product;
+    private Double price;
+    private Short discount;
     private Short quantity;
 }

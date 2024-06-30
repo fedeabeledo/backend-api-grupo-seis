@@ -14,8 +14,8 @@ public class UserSpecification {
                 criteriaBuilder.like(root.get("lastname"), "%" + lastname + "%");
     }
 
-    public static Specification<User> dniSpec(String dni) {
+    public static Specification<User> emailSpec(String email) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("dni"), dni);
+                criteriaBuilder.like(root.get("email"), "%" + email + "%");
     }
 }

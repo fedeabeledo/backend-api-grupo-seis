@@ -13,9 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InvoiceResponseDTO {
-    private List<ProductInvoiceDTO> products;
+    private List<ProductInvoiceResponseDTO> products;
 
-    private UserResponseDTO user;
+    private UserInvoiceResposeDTO user;
 
     private Short discount;
 
@@ -27,6 +27,12 @@ public class InvoiceResponseDTO {
 
     @JsonProperty("payment_method")
     private String paymentMethod;
+
+    @JsonProperty("shipping_data")
+    private String shippingData;
+
+    @JsonProperty("last_four_digits")
+    private String lastFourDigits;
 
     private Double total;
 }
