@@ -50,10 +50,11 @@ public class ProductService implements IProductService {
     private static final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
 
     @Override
-    public PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
-                                               String priceSort, String bestsellerSort, Short page) {
+
+    public PageDTO<ProductDTO> findAll(String keywords, String category, String brand, Double min, Double max,
+                                       String priceSort, String bestsellerSort, Short page, String stage) {
         Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
-        Specification<Product> spec = buildSpec(category, brand, min, max, keywords);
+        Specification<Product> spec = buildSpec(category, brand, min, max, keywords, stage);
 
         Page<Product> res = repository.findAll(spec, pageable);
 
@@ -190,7 +191,7 @@ public class ProductService implements IProductService {
     }
 
     // search bar, shop pages, brands & price filters
-    private Specification<Product> buildSpec(String category, String brand, Double min, Double max, String keywords) {
+    private Specification<Product> buildSpec(String category, String brand, Double min, Double max, String keywords, String stage) {
         Specification<Product> spec = Specification.where(null);
 
         if (category != null) {
@@ -201,12 +202,12 @@ public class ProductService implements IProductService {
             spec = spec.and(ProductSpecification.titleContainingSpec(keywords));
         }
 
-        if (category != null) {
-            spec = spec.and(ProductSpecification.categorySpec(category));
-        }
-
         if (brand != null) {
             spec = spec.and(ProductSpecification.brandSpec(brand));
+        }
+
+        if (stage != null) {
+            spec = spec.and(ProductSpecification.petStageSpec(stage));
         }
 
         if (min != null || max != null) {

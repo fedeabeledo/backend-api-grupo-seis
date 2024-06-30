@@ -33,6 +33,13 @@ public class ProductSpecification {
         };
     }
 
+    public static Specification<Product> petStageSpec(String petStage) {
+        return (root, query, criteriaBuilder) -> {
+            Stage stage = Stage.valueOf(petStage.toUpperCase());
+            return criteriaBuilder.equal(root.get("petStage"), stage);
+        };
+    }
+
     public static Specification<Product> titleContainingSpec(String keyword) {
         String[] keywords = keyword.toLowerCase().split("\\s+");
 
@@ -51,4 +58,5 @@ public class ProductSpecification {
     }
 
     private enum Category {CAT, DOG, FISH, HAMSTER}
+    private enum Stage {BABY, ADULT, SENIOR}
 }
