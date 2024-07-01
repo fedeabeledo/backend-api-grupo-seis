@@ -17,7 +17,11 @@ public class ProductSerializer extends JsonSerializer<Product> {
         jsonGen.writeStringField("image_url", product.getImageUrl());
         jsonGen.writeStringField("brand", product.getBrand());
         jsonGen.writeStringField("pet_category", product.getPetCategory().toString());
-        jsonGen.writeStringField("pet_stage", product.getPetStage().toString());
+        if (product.getPetStage() != null) {
+            jsonGen.writeStringField("pet_stage", product.getPetStage().toString());
+        } else {
+            jsonGen.writeNullField("pet_stage");
+        }
         jsonGen.writeNumberField("score", product.getScore());
         jsonGen.writeNumberField("score_voters", product.getScoreVoters());
         jsonGen.writeNumberField("price", product.getPrice());

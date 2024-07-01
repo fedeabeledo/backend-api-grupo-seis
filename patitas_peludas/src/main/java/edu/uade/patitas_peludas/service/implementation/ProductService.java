@@ -156,7 +156,11 @@ public class ProductService implements IProductService {
         }
         PetStage petStage;
         try {
-            petStage = PetStage.valueOf(product.getPetStage().toUpperCase());
+            if (product.getPetStage() != null) {
+                petStage = PetStage.valueOf(product.getPetStage().toUpperCase());
+            } else {
+                petStage = null;
+            }
         } catch (IllegalArgumentException e) {
             throw new InvalidPetStageException(String.format(INVALID_PET_STAGE_ERROR, product.getPetStage()));
         }
