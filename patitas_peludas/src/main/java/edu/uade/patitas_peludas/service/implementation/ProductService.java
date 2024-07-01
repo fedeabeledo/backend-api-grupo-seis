@@ -51,7 +51,7 @@ public class ProductService implements IProductService {
 
     @Override
 
-    public PageDTO<ProductDTO> findAll(String keywords, String category, String brand, Double min, Double max,
+    public PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
                                        String priceSort, String bestsellerSort, Short page, String stage) {
         Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
         Specification<Product> spec = buildSpec(category, brand, min, max, keywords, stage);
