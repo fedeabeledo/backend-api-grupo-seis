@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private Role role;
 
     private enum Role {
-        VENDOR, BUYER
+        VENDOR, BUYER, ADMIN
     }
 
     @Column(name = "state", nullable = false)
