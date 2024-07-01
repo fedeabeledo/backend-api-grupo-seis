@@ -9,4 +9,5 @@ import lombok.*;
 @NoArgsConstructor
 public class UserLoginResponseDTO {
     private String token;
+    private Long id;
 }

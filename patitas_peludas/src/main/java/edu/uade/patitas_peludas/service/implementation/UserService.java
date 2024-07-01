@@ -115,7 +115,7 @@ public class UserService implements IUserService, UserDetailsService {
             }
 
             String token = jwtUtils.generateToken((User) userDetails);
-            return new UserLoginResponseDTO(token);
+            return new UserLoginResponseDTO(token, searchedUser.getId());
         }
 
         throw new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_EMAIL, user.getEmail()));
