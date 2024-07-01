@@ -40,7 +40,7 @@ public class User implements UserDetails {
     @Column(name = "role", length = 45)
     private Role role;
 
-    public enum Role {
+    private enum Role {
         VENDOR, BUYER, ADMIN
     }
 
