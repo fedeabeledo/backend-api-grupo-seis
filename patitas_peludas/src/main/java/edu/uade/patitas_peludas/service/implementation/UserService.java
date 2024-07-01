@@ -68,6 +68,7 @@ public class UserService implements IUserService, UserDetailsService {
         if (repository.existsByEmail(user.getEmail())) {
             throw new UserExistsException(String.format(USER_EXISTS_ERROR, user.getEmail()));
         }
+        user.setRole(user.getRole().toUpperCase());
         User entity = mapper.convertValue(user, User.class);
         User saved = repository.save(entity);
 

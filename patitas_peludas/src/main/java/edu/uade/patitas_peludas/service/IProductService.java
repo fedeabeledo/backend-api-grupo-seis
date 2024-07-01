@@ -6,7 +6,7 @@ import edu.uade.patitas_peludas.dto.ProductResponseDTO;
 
 public interface IProductService {
 
-    PageDTO<ProductDTO> findAll(String keywords, String category, String brand, Double min, Double max,
+    PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
                                 String priceSort, String bestsellerSort, Short page, String stage);
 
     ProductResponseDTO findById(Long id);
