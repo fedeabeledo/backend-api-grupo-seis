@@ -50,7 +50,6 @@ public class ProductService implements IProductService {
     private static final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
 
     @Override
-
     public PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
                                        String priceSort, String bestsellerSort, Short page, String stage) {
         Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
@@ -129,12 +128,26 @@ public class ProductService implements IProductService {
         }
     }
 
+    @Override
+    public List<String> findAllBrands(String category) {
+        if (category != null) {
+            PetCategory petCategory = PetCategory.valueOf(category.toUpperCase());
+            return repository.findAllBrandsByCategory(petCategory);
+        }
+        return repository.findAllBrands();
+    }
+
     private Product mapProduct(ProductRequestDTO product) {
         Random random = new Random();
         Double score = random.nextDouble() * 5;
-        score = Math.round(score * 100.0) / 100.0;
+        score = Math.round(score * 10.0) / 10.0;
         Integer scoreVoters = random.nextInt(1000);
-        Boolean isBestseller = random.nextBoolean();
+        Boolean isBestseller = false;
+
+        if (score > 4.0 && scoreVoters > 100) {
+            isBestseller = random.nextBoolean();
+        }
+
         PetCategory petCategory;
         try {
             petCategory = PetCategory.valueOf(product.getPetCategory().toUpperCase());
@@ -169,6 +182,7 @@ public class ProductService implements IProductService {
     // sorts
     private Pageable buildPageable(String priceSort, String bestsellerSort, Short page) {
         List<Sort.Order> orders = new ArrayList<>();
+        orders.add(Sort.Order.desc("stock"));
 
         if (priceSort != null) {
             if (priceSort.equalsIgnoreCase("desc")) {

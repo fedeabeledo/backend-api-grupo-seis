@@ -4,6 +4,8 @@ import edu.uade.patitas_peludas.dto.PageDTO;
 import edu.uade.patitas_peludas.dto.ProductRequestDTO;
 import edu.uade.patitas_peludas.dto.ProductResponseDTO;
 
+import java.util.List;
+
 public interface IProductService {
 
     PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
@@ -17,4 +19,6 @@ public interface IProductService {
     void deleteById(Long id);
 
     ProductResponseDTO update(Long id, ProductRequestDTO product);
+
+    List<String> findAllBrands(String category);
 }

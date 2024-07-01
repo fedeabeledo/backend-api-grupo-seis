@@ -2,6 +2,7 @@ package edu.uade.patitas_peludas.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -36,6 +37,7 @@ public class UserRequestDTO {
     private String password;
 
     @Size(max = 45)
+    @Pattern(regexp = "(?i)vendor|buyer|admin")
     private String role;
 
     private Boolean state;
