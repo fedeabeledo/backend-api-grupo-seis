@@ -132,9 +132,14 @@ public class ProductService implements IProductService {
     private Product mapProduct(ProductRequestDTO product) {
         Random random = new Random();
         Double score = random.nextDouble() * 5;
-        score = Math.round(score * 100.0) / 100.0;
+        score = Math.round(score * 10.0) / 10.0;
         Integer scoreVoters = random.nextInt(1000);
-        Boolean isBestseller = random.nextBoolean();
+        Boolean isBestseller = false;
+
+        if (score > 4.0 && scoreVoters > 100) {
+            isBestseller = random.nextBoolean();
+        }
+
         PetCategory petCategory;
         try {
             petCategory = PetCategory.valueOf(product.getPetCategory().toUpperCase());
@@ -169,6 +174,7 @@ public class ProductService implements IProductService {
     // sorts
     private Pageable buildPageable(String priceSort, String bestsellerSort, Short page) {
         List<Sort.Order> orders = new ArrayList<>();
+        orders.add(Sort.Order.desc("stock"));
 
         if (priceSort != null) {
             if (priceSort.equalsIgnoreCase("desc")) {

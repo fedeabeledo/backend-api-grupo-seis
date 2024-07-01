@@ -55,7 +55,7 @@ public class SecurityConfig {
                                 // create invoice (buy a product)
                                 .requestMatchers(HttpMethod.POST, "/api/invoice").hasAnyAuthority("VENDOR", "BUYER")
                                 // get invoice by id and user id
-                                .requestMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("VENDOR", "BUYER")
+                                .requestMatchers(HttpMethod.GET, "/api/invoice/**").hasAnyAuthority("VENDOR", "BUYER")
                         .anyRequest().permitAll())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(daoAuthenticationProvider())
