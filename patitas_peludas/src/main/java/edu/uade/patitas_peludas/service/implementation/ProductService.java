@@ -50,7 +50,6 @@ public class ProductService implements IProductService {
     private static final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
 
     @Override
-
     public PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
                                        String priceSort, String bestsellerSort, Short page, String stage) {
         Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
@@ -127,6 +126,15 @@ public class ProductService implements IProductService {
         } else {
             throw new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, id));
         }
+    }
+
+    @Override
+    public List<String> findAllBrands(String category) {
+        if (category != null) {
+            PetCategory petCategory = PetCategory.valueOf(category.toUpperCase());
+            return repository.findAllBrandsByCategory(petCategory);
+        }
+        return repository.findAllBrands();
     }
 
     private Product mapProduct(ProductRequestDTO product) {

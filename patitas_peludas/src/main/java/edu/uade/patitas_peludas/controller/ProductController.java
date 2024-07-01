@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequestMapping(value = "/api/product")
@@ -53,6 +55,11 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(service.findProductByUserId(userId, page));
     }
 
+    @GetMapping("/brands")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<String>> findAllBrands(@RequestParam(required = false) String category) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findAllBrands(category));
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
