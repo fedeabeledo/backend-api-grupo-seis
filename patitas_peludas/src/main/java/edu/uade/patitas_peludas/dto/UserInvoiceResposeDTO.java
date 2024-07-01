@@ -1,20 +1,18 @@
 package edu.uade.patitas_peludas.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UserResponseDTO {
-    private Long id;
-
+public class UserInvoiceResposeDTO {
     @NotBlank
     @Size(max = 256)
     private String name;
@@ -23,19 +21,8 @@ public class UserResponseDTO {
     @Size(max = 256)
     private String lastname;
 
-    @NotBlank
-    @Size(max = 256)
-    private String dni;
-
-    @Size(max = 256)
-    private String phoneNumber;
-
     @Email
     @Size(max = 256)
     private String email;
 
-    @Size(max = 45)
-    private String role;
-
-    private Boolean state;
 }

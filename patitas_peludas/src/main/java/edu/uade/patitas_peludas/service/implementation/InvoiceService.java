@@ -4,18 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.uade.patitas_peludas.dto.InvoiceRequestDTO;
 import edu.uade.patitas_peludas.dto.InvoiceResponseDTO;
 import edu.uade.patitas_peludas.dto.PageDTO;
-import edu.uade.patitas_peludas.dto.ProductDTO;
-import edu.uade.patitas_peludas.dto.ProductInvoiceDTO;
-import edu.uade.patitas_peludas.dto.UserResponseDTO;
+import edu.uade.patitas_peludas.dto.ProductInvoiceResponseDTO;
+import edu.uade.patitas_peludas.dto.ProductsInvoiceRequestDTO;
+import edu.uade.patitas_peludas.dto.UserInvoiceResposeDTO;
 import edu.uade.patitas_peludas.entity.Invoice;
 import edu.uade.patitas_peludas.entity.InvoiceProduct;
 import edu.uade.patitas_peludas.entity.PaymentMethod;
 import edu.uade.patitas_peludas.entity.Product;
 import edu.uade.patitas_peludas.entity.ShippingMethod;
 import edu.uade.patitas_peludas.entity.User;
+import edu.uade.patitas_peludas.exception.InvalidFourDigitsException;
 import edu.uade.patitas_peludas.exception.InvalidPaymentMethodException;
+import edu.uade.patitas_peludas.exception.InvalidShippingDataException;
 import edu.uade.patitas_peludas.exception.InvalidShippingMethodException;
 import edu.uade.patitas_peludas.exception.InvoiceNotFoundException;
+import edu.uade.patitas_peludas.exception.NotBuyerException;
 import edu.uade.patitas_peludas.exception.ProductNotFoundException;
 import edu.uade.patitas_peludas.exception.UserNotFoundException;
 import edu.uade.patitas_peludas.repository.InvoiceProductRepository;
@@ -26,13 +29,13 @@ import edu.uade.patitas_peludas.service.IInvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,10 +58,19 @@ public class InvoiceService implements IInvoiceService {
     private static final String USER_NOT_FOUND_ERROR = "Could not find user with ID: %d.";
     private static final String INVALID_PAYMENT_METHOD_ERROR = "%s is an invalid payment method.";
     private static final String INVALID_SHIPPING_METHOD_ERROR = "%s is an invalid shipping method.";
+    private static final String INVALID_SHIPPING_DATA_ERROR = "Shipping data is required for shipping.";
+    private static final String INVALID_LAST_FOUR_DIGITS_ERROR = "Last four digits are required for credit card payment.";
+    private static final String NOT_BUYER_ERROR = "User with ID: %d is not a buyer.";
 
 
     @Override
     public InvoiceResponseDTO create(InvoiceRequestDTO invoiceRequestDTO) {
+        User user = userRepository.findById(invoiceRequestDTO.getUserId()).orElseThrow(
+                () -> new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR, invoiceRequestDTO.getUserId()))
+        );
+        if (!user.getRole().equals(User.Role.BUYER)) {
+            throw new NotBuyerException(String.format(NOT_BUYER_ERROR, user.getId()));
+        }
         Invoice invoice = convertInvoiceRequestDTOToInvoice(invoiceRequestDTO);
         invoiceRepository.save(invoice);
         List<InvoiceProduct> invoiceProducts = createInvoiceProducts(invoiceRequestDTO, invoice);
@@ -91,22 +103,38 @@ public class InvoiceService implements IInvoiceService {
 
     private InvoiceResponseDTO convertInvoiceToInvoiceResponseDTO(Invoice invoice) {
         List<InvoiceProduct> invoiceProducts = invoiceProductRepository.findByInvoiceId(invoice.getId());
-        List<ProductInvoiceDTO> products = invoiceProducts.stream().map(invoiceProduct -> {
+        List<ProductInvoiceResponseDTO> products = invoiceProducts.stream().map(invoiceProduct -> {
             Product product = invoiceProduct.getProduct();
-            ProductDTO productDTO = mapper.convertValue(product, ProductDTO.class);
-            return new ProductInvoiceDTO(productDTO, invoiceProduct.getQuantity());
+            return new ProductInvoiceResponseDTO(product.getTitle(), product.getPrice(), product.getDiscount(), invoiceProduct.getQuantity());
         }).collect(Collectors.toList());
         Double total = invoiceProducts.stream().mapToDouble(invoiceProduct -> invoiceProduct.getUnitPrice() * invoiceProduct.getQuantity()).sum();
         total = total - (total * (invoice.getDiscount() / 100.0));
         total += invoice.getShippingCost();
+        Optional<String> lastFourDigits = Optional.empty();
+        if (invoice.getPaymentMethod().equals(PaymentMethod.CREDIT_CARD)) {
+            lastFourDigits = Optional.ofNullable(invoice.getLastFourDigits());
+            if (lastFourDigits.isEmpty() || lastFourDigits.get().length() != 4) {
+                throw new InvalidFourDigitsException(INVALID_LAST_FOUR_DIGITS_ERROR);
+            }
+        }
+
+        Optional<String> shippingData = Optional.empty();
+        if (invoice.getShippingMethod().equals(ShippingMethod.ANDREANI) || invoice.getShippingMethod().equals(ShippingMethod.CORREO_ARGENTINO)) {
+            shippingData = Optional.ofNullable(invoice.getShippingData());
+            if (shippingData.isEmpty() || shippingData.get().isBlank() || shippingData.get().isEmpty()) {
+                throw new InvalidShippingDataException(INVALID_SHIPPING_DATA_ERROR);
+            }
+        }
 
         return new InvoiceResponseDTO(
                 products,
-                mapper.convertValue(invoice.getUser(), UserResponseDTO.class),
+                mapper.convertValue(invoice.getUser(), UserInvoiceResposeDTO.class),
                 invoice.getDiscount(),
                 invoice.getShippingMethod().name(),
                 invoice.getShippingCost(),
                 invoice.getPaymentMethod().name(),
+                shippingData.orElse(""),
+                lastFourDigits.orElse(""),
                 total
         );
     }
@@ -124,11 +152,11 @@ public class InvoiceService implements IInvoiceService {
         }
         Short discount = getDiscount(paymentMethod);
 
-        Double subtotal = invoiceRequestDTO.getProducts().entrySet().stream().mapToDouble(entry -> {
-            Product product = productRepository.findById(entry.getKey()).orElseThrow(
-                    () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, entry.getKey()))
+        Double subtotal = invoiceRequestDTO.getProducts().stream().mapToDouble(order -> {
+            Product product = productRepository.findById(order.getProductId()).orElseThrow(
+                    () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, order.getProductId()))
             );
-            return product.getPrice() * entry.getValue();
+            return product.getPrice() * order.getQuantity();
         }).sum();
 
         ShippingMethod shippingMethod;
@@ -140,7 +168,7 @@ public class InvoiceService implements IInvoiceService {
 
         Double shippingCost = getShippingCost(shippingMethod, subtotal);
 
-        return new Invoice(user, discount, shippingMethod, shippingCost, paymentMethod);
+        return new Invoice(user, discount, shippingMethod, shippingCost, paymentMethod, invoiceRequestDTO.getShippingData(), invoiceRequestDTO.getLastFourDigits());
     }
 
     private Short getDiscount(PaymentMethod paymentMethod) {
@@ -165,16 +193,16 @@ public class InvoiceService implements IInvoiceService {
     private List<InvoiceProduct> createInvoiceProducts(InvoiceRequestDTO invoiceRequestDTO, Invoice invoice) {
         List<InvoiceProduct> invoiceProducts = new ArrayList<>();
         try {
-            for (Map.Entry<Long, Short> products : invoiceRequestDTO.getProducts().entrySet()) {
-                Product product = productRepository.findById(products.getKey()).orElseThrow(
-                        () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, products.getKey())));
-                if (product.getStock() < products.getValue()) {
+            for (ProductsInvoiceRequestDTO products : invoiceRequestDTO.getProducts()) {
+                Product product = productRepository.findById(products.getProductId()).orElseThrow(
+                        () -> new ProductNotFoundException(String.format(PRODUCT_NOT_FOUND_ERROR, products.getProductId())));
+                if (product.getStock() < products.getQuantity()) {
                     throw new ProductNotFoundException(String.format(NOT_ENOUGH_STOCK_ERROR, product.getId()));
                 }
-                product.setStock((short) (product.getStock() - products.getValue()));
+                product.setStock((short) (product.getStock() - products.getQuantity()));
                 productRepository.save(product);
                 Double unitPrice = product.getPrice() - (product.getPrice() * (product.getDiscount() / 100.0));
-                InvoiceProduct invoiceProduct = new InvoiceProduct(invoice, product, products.getValue(), unitPrice);
+                InvoiceProduct invoiceProduct = new InvoiceProduct(invoice, product, products.getQuantity(), unitPrice);
                 invoiceProducts.add(invoiceProduct);
             }
         } catch (Exception e) {

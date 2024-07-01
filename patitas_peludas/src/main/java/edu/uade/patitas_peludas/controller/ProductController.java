@@ -1,7 +1,8 @@
 package edu.uade.patitas_peludas.controller;
 
 import edu.uade.patitas_peludas.dto.PageDTO;
-import edu.uade.patitas_peludas.dto.ProductDTO;
+import edu.uade.patitas_peludas.dto.ProductRequestDTO;
+import edu.uade.patitas_peludas.dto.ProductResponseDTO;
 import edu.uade.patitas_peludas.service.IProductService;
 import jakarta.validation.constraints.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,20 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(service.findById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<PageDTO<ProductResponseDTO>> findProductByUserId(@PathVariable Long userId, @RequestParam(required = false) @NotNull @PositiveOrZero Short page) {
+        return ResponseEntity.status(HttpStatus.OK).body(service.findProductByUserId(userId, page));
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ProductDTO> save(@RequestBody @Validated ProductDTO product) {
+    public ResponseEntity<ProductResponseDTO> save(@RequestBody @Validated ProductRequestDTO product) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(product));
     }
 
@@ -62,7 +69,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody @Validated ProductDTO product) {
+    public ResponseEntity<ProductResponseDTO> update(@PathVariable Long id, @RequestBody @Validated ProductRequestDTO product) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(id, product));
     }
 }

@@ -1,17 +1,20 @@
 package edu.uade.patitas_peludas.service;
 
 import edu.uade.patitas_peludas.dto.PageDTO;
-import edu.uade.patitas_peludas.dto.ProductDTO;
+import edu.uade.patitas_peludas.dto.ProductRequestDTO;
+import edu.uade.patitas_peludas.dto.ProductResponseDTO;
 
 public interface IProductService {
+
     PageDTO<ProductDTO> findAll(String keywords, String category, String brand, Double min, Double max,
                                 String priceSort, String bestsellerSort, Short page, String stage);
 
-    ProductDTO findById(Long id);
+    ProductResponseDTO findById(Long id);
+    PageDTO<ProductResponseDTO> findProductByUserId(Long userId, Short page);
 
-    ProductDTO save(ProductDTO product);
+    ProductResponseDTO save(ProductRequestDTO product);
 
     void deleteById(Long id);
 
-    ProductDTO update(Long id, ProductDTO product);
+    ProductResponseDTO update(Long id, ProductRequestDTO product);
 }
