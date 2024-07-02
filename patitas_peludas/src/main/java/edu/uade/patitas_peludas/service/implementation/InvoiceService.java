@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,7 @@ public class InvoiceService implements IInvoiceService {
     private static final String NOT_BUYER_ERROR = "User with ID: %d is not a buyer.";
 
 
+    @Transactional
     @Override
     public InvoiceResponseDTO create(InvoiceRequestDTO invoiceRequestDTO) {
         User user = userRepository.findById(invoiceRequestDTO.getUserId()).orElseThrow(

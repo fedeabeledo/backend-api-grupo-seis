@@ -56,9 +56,22 @@ public class ProductService implements IProductService {
         Specification<Product> spec = buildSpec(category, brand, min, max, keywords, stage);
 
         Page<Product> res = repository.findAll(spec, pageable);
+        List<ProductResponseDTO> withoutStock = new ArrayList<>();
+        List<ProductResponseDTO> withStock = new ArrayList<>();
 
-        List<ProductResponseDTO> content = res.getContent().stream().map(product ->
-                mapper.convertValue(product, ProductResponseDTO.class)).collect(Collectors.toList());
+        res.getContent().stream()
+                .map(product -> mapper.convertValue(product, ProductResponseDTO.class))
+                .forEach(productDTO -> {
+                    if (productDTO.getStock() > 0) {
+                        withStock.add(productDTO);
+                    } else {
+                        withoutStock.add(productDTO);
+                    }
+                });
+
+        List<ProductResponseDTO> content = new ArrayList<>();
+        content.addAll(withStock);
+        content.addAll(withoutStock);
 
         return new PageDTO<>(
                 content,
@@ -186,7 +199,6 @@ public class ProductService implements IProductService {
     // sorts
     private Pageable buildPageable(String priceSort, String bestsellerSort, Short page) {
         List<Sort.Order> orders = new ArrayList<>();
-        orders.add(Sort.Order.desc("stock"));
 
         if (priceSort != null) {
             if (priceSort.equalsIgnoreCase("desc")) {
