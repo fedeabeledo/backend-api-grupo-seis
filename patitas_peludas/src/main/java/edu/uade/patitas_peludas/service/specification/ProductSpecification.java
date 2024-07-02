@@ -1,8 +1,7 @@
 package edu.uade.patitas_peludas.service.specification;
 
 import edu.uade.patitas_peludas.entity.Product;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProductSpecification {
@@ -55,6 +54,37 @@ public class ProductSpecification {
 
             return criteriaBuilder.and(predicates);
         };
+    }
+
+    public static Specification<Product> getPriceAndBestsellerOrder(String priceSort, String bestsellerSort) {
+        return (root, query, builder) -> {
+            query.orderBy(
+                    builder.asc(
+                            builder.selectCase()
+                                    .when(builder.equal(root.get("stock"), (short) 0), 1)
+                                    .otherwise(0)
+                    ),
+                    ProductSpecification.getPriceOrderExpression(root, builder, priceSort),
+                    ProductSpecification.getBestsellerOrderExpression(root, builder, bestsellerSort)
+            );
+            return null;
+        };
+    }
+
+    private static Order getPriceOrderExpression(Root<Product> root, CriteriaBuilder builder, String priceSort) {
+        if (priceSort != null && priceSort.equalsIgnoreCase("desc")) {
+            return builder.desc(root.get("price"));
+        } else {
+            return builder.asc(root.get("price"));
+        }
+    }
+
+    private static Order getBestsellerOrderExpression(Root<Product> root, CriteriaBuilder builder, String bestsellerSort) {
+        if (bestsellerSort != null && bestsellerSort.equalsIgnoreCase("desc")) {
+            return builder.desc(root.get("bestseller"));
+        } else {
+            return builder.asc(root.get("bestseller"));
+        }
     }
 
     private enum Category {CAT, DOG, FISH, HAMSTER}

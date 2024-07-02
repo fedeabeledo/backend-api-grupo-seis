@@ -52,26 +52,13 @@ public class ProductService implements IProductService {
     @Override
     public PageDTO<ProductResponseDTO> findAll(String keywords, String category, String brand, Double min, Double max,
                                        String priceSort, String bestsellerSort, Short page, String stage) {
-        Pageable pageable = buildPageable(priceSort, bestsellerSort, page);
-        Specification<Product> spec = buildSpec(category, brand, min, max, keywords, stage);
+        Pageable pageable = PageRequest.of(page, 12, Sort.unsorted());
+        Specification<Product> spec = buildSpec(category, brand, min, max, keywords, stage, priceSort, bestsellerSort);
 
         Page<Product> res = repository.findAll(spec, pageable);
-        List<ProductResponseDTO> withoutStock = new ArrayList<>();
-        List<ProductResponseDTO> withStock = new ArrayList<>();
 
-        res.getContent().stream()
-                .map(product -> mapper.convertValue(product, ProductResponseDTO.class))
-                .forEach(productDTO -> {
-                    if (productDTO.getStock() > 0) {
-                        withStock.add(productDTO);
-                    } else {
-                        withoutStock.add(productDTO);
-                    }
-                });
-
-        List<ProductResponseDTO> content = new ArrayList<>();
-        content.addAll(withStock);
-        content.addAll(withoutStock);
+        List<ProductResponseDTO> content = res.getContent().stream().map(product ->
+                mapper.convertValue(product, ProductResponseDTO.class)).collect(Collectors.toList());
 
         return new PageDTO<>(
                 content,
@@ -196,32 +183,8 @@ public class ProductService implements IProductService {
                 isBestseller);
     }
 
-    // sorts
-    private Pageable buildPageable(String priceSort, String bestsellerSort, Short page) {
-        List<Sort.Order> orders = new ArrayList<>();
-
-        if (priceSort != null) {
-            if (priceSort.equalsIgnoreCase("desc")) {
-                orders.add(Sort.Order.desc("price"));
-            } else if (priceSort.equalsIgnoreCase("asc")) {
-                orders.add(Sort.Order.asc("price"));
-            }
-        }
-
-        if (bestsellerSort != null) {
-            if (bestsellerSort.equalsIgnoreCase("desc")) {
-                orders.add(Sort.Order.desc("bestseller"));
-            } else if (bestsellerSort.equalsIgnoreCase("asc")) {
-                orders.add(Sort.Order.asc("bestseller"));
-            }
-        }
-
-        Sort sorted = Sort.by(orders);
-        return PageRequest.of(page, 12, sorted);
-    }
-
-    // search bar, shop pages, brands & price filters
-    private Specification<Product> buildSpec(String category, String brand, Double min, Double max, String keywords, String stage) {
+    // search bar, shop pages, brands & price filters + price, bestseller & stock orders
+    private Specification<Product> buildSpec(String category, String brand, Double min, Double max, String keywords, String stage, String priceSort, String bestsellerSort) {
         Specification<Product> spec = Specification.where(null);
 
         if (category != null) {
@@ -244,6 +207,7 @@ public class ProductService implements IProductService {
             spec = spec.and(ProductSpecification.priceSpec(min, max));
         }
 
+        spec = spec.and(ProductSpecification.getPriceAndBestsellerOrder(priceSort, bestsellerSort));
         return spec;
     }
 }
