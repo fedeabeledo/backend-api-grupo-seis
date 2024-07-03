@@ -40,8 +40,6 @@ public class SecurityConfig {
                         authorize
                                 // delete user
                                 .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasAuthority("ADMIN")
-                                // edit user
-                                .requestMatchers(HttpMethod.PUT, "/api/user/**").hasAuthority("ADMIN")
                                 // change status
                                 .requestMatchers(HttpMethod.PATCH, "/api/user/**").hasAuthority("ADMIN")
                                 // get all users

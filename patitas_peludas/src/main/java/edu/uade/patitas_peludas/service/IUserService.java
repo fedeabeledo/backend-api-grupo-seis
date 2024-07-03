@@ -10,7 +10,7 @@ public interface IUserService {
 
     void deleteById(Long id);
 
-    UserResponseDTO update(Long id, UserRequestDTO user);
+    UserLoginResponseDTO update(Long id, UserRequestDTO user);
 
     UserResponseDTO findByEmail(String email);
 

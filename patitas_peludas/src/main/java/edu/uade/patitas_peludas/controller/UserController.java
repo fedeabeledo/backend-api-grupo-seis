@@ -60,7 +60,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @RequestBody @Validated UserRequestDTO user) {
+    public ResponseEntity<UserLoginResponseDTO> update(@PathVariable Long id, @RequestBody @Validated UserRequestDTO user) {
         return ResponseEntity.status(HttpStatus.OK).body(service.update(id, user));
     }
 

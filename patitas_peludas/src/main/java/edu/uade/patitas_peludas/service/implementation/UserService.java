@@ -82,16 +82,24 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public UserResponseDTO update(Long id, UserRequestDTO user) {
-        user.setPassword(String.valueOf(user.getPassword().hashCode()));
-        if (repository.existsById(id)) {
-            User mappedUser = mapper.convertValue(user, User.class);
-            mappedUser.setId(id);
-            User updated = repository.save(mappedUser);
-            return mapper.convertValue(updated, UserResponseDTO.class);
+    public UserLoginResponseDTO update(Long id, UserRequestDTO user) {
+        User editingUser = repository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_ID, id)));
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         } else {
-            throw new UserNotFoundException(String.format(USER_NOT_FOUND_ERROR_ID, id));
+            user.setPassword(editingUser.getPassword());
         }
+        if (user.getRole() == null) {
+            user.setRole(String.valueOf(editingUser.getRole()));
+        }
+        if (user.getState() == null) {
+            user.setState(editingUser.getState());
+        }
+        User mappedUser = mapper.convertValue(user, User.class);
+        mappedUser.setId(id);
+        User updated = repository.save(mappedUser);
+        UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto(updated.getEmail(), updated.getPassword());
+        return login(userLoginRequestDto);
     }
 
     @Override
