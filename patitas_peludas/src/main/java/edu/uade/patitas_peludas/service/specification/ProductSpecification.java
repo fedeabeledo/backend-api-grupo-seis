@@ -58,25 +58,46 @@ public class ProductSpecification {
 
     public static Specification<Product> getPriceAndBestsellerOrder(String priceSort, String bestsellerSort) {
         return (root, query, builder) -> {
-            query.orderBy(
-                    builder.asc(
-                            builder.selectCase()
-                                    .when(builder.equal(root.get("stock"), (short) 0), 1)
-                                    .otherwise(0)
-                    ),
-                    ProductSpecification.getPriceOrderExpression(root, builder, priceSort),
-                    ProductSpecification.getBestsellerOrderExpression(root, builder, bestsellerSort)
-            );
+//            query.orderBy(
+//                    builder.asc(
+//                            builder.selectCase()
+//                                    .when(builder.equal(root.get("stock"), (short) 0), 1)
+//                                    .otherwise(0)
+//                    ),
+//                    ProductSpecification.getBestsellerOrderExpression(root, builder, bestsellerSort),
+//                    ProductSpecification.getPriceOrderExpression(root, builder, priceSort)
+//            );
+            if(priceSort != null) {
+                query.orderBy(
+                        builder.asc(
+                                builder.selectCase()
+                                        .when(builder.equal(root.get("stock"), (short) 0), 1)
+                                        .otherwise(0)
+                        ),
+                        ProductSpecification.getPriceOrderExpression(root, builder, priceSort)
+                );
+            }
+            else if (bestsellerSort != null) {
+                query.orderBy(
+                        builder.asc(
+                                builder.selectCase()
+                                        .when(builder.equal(root.get("stock"), (short) 0), 1)
+                                        .otherwise(0)
+                        ),
+                        ProductSpecification.getBestsellerOrderExpression(root, builder, bestsellerSort)
+                );
+            }
+            else {
+                query.orderBy(
+                        builder.asc(
+                                builder.selectCase()
+                                        .when(builder.equal(root.get("stock"), (short) 0), 1)
+                                        .otherwise(0)
+                        )
+                );
+            }
             return null;
         };
-    }
-
-    private static Order getPriceOrderExpression(Root<Product> root, CriteriaBuilder builder, String priceSort) {
-        if (priceSort != null && priceSort.equalsIgnoreCase("desc")) {
-            return builder.desc(root.get("price"));
-        } else {
-            return builder.asc(root.get("price"));
-        }
     }
 
     private static Order getBestsellerOrderExpression(Root<Product> root, CriteriaBuilder builder, String bestsellerSort) {
@@ -86,6 +107,21 @@ public class ProductSpecification {
             return builder.asc(root.get("bestseller"));
         }
     }
+
+    private static Order getPriceOrderExpression(Root<Product> root, CriteriaBuilder builder, String priceSort) {
+        Expression<Number> finalPrice = builder.diff(root.get("price"), builder.prod(root.get("price"), builder.quot(root.get("discount"), 100.0)));
+
+        if (priceSort != null) {
+            if (priceSort.equalsIgnoreCase("desc")) {
+                return builder.desc(finalPrice);
+            } else if (priceSort.equalsIgnoreCase("asc")) {
+                return builder.asc(finalPrice);
+            }
+        }
+        return null;
+    }
+
+
 
     private enum Category {CAT, DOG, FISH, HAMSTER}
     private enum Stage {BABY, ADULT, SENIOR}
